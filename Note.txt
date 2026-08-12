@@ -440,13 +440,43 @@ It’s part of the Window Object in the Browser Object Model (BOM) and is often 
 Syntax:
 
     window.open(URL, name, specs, replace);
-    
+
     Parameters:
     URL: The address of the page to open (optional). Default: blank page.
     name: A target name for the window/tab (e.g., _blank, _self, custom name).
     specs:A string defining window features (size, position, scrollbars, etc.).
     replace: Boolean (optional). If true, replaces the current history entry.
       
-    
+
+Controlling the Browser Window 🪟
+(focus(), blur(), moveTo(), and resizeTo())
+
+JavaScript allows you to control and interact with the browser window beyond just displaying content.
+
+When working with popups created using window.open(), you can:
+
+    bring them to the front (focus()),
+    send them behind (blur()),
+    move them to a specific location (moveTo()), and
+    resize them dynamically (resizeTo()).
+
+These methods are all part of the Window Object and are especially useful for building custom tools, dashboards, and popups.
+
+🛠️ Summary of Interconnections:
+🔹 innerWidth / innerHeight → show content area (viewport).
+🔹 outerWidth / outerHeight → show full window dimensions.
+🔹 screenX / screenY → show window position on the user’s screen.
+
+🧩 Used together, they help you understand and control the browser environment in real time.
+
+------------------------------> JavaScript Timing Functions <-----------------------
+
+JavaScript isn’t just about responding to user actions — it can also perform tasks after a certain time or repeatedly at intervals.
+
+These four built-in timing functions allow you to:
+🔹 Delay code execution (setTimeout)
+🔹 Cancel a delayed action (clearTimeout)
+🔹 Repeat code at fixed intervals (setInterval)
+🔹 Stop repetition (clearInterval)
 
 
