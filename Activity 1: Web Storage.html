@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity 1: Web Storage</title>
+
+    <style>
+        :root {
+            --primary: #567cd0;
+            --primary-dark: #1d4ed8;
+            --background: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: var(--background);
+
+            font-family: Arial, sans-serif;
+            color: var(--text);
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        .box {
+            width: 400px;
+            min-height: 500px;
+
+            padding: 40px;
+
+            background: var(--card);
+
+            border: 1px solid var(--border);
+            border-radius: 20px;
+
+            box-shadow:
+                0 10px 25px rgba(0, 0, 0, 0.08),
+                0 20px 40px rgba(0, 0, 0, 0.06);
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            gap: 20px;
+        }
+
+        .box h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .box h4 {
+            width: 100%;
+            text-align: left;
+        }
+
+        .input {
+            width: 100%;
+
+            padding: 14px 16px;
+
+            border: 2px solid var(--border);
+            border-radius: 12px;
+
+            background: #f8fafc;
+
+            color: var(--text);
+
+            font-size: 16px;
+
+            outline: none;
+
+            transition: 0.2s;
+        }
+
+        .input:focus {
+            border-color: var(--primary);
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .input::placeholder {
+            color: #94a3b8;
+        }
+
+        button {
+            width: 100%;
+
+            padding: 14px 20px;
+
+            border: none;
+            border-radius: 12px;
+
+            background: #6476a9;
+
+            color: white;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary);
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, 0.25);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .delete {
+            background: var(--danger);
+        }
+
+        .delete:hover {
+            background: #b91c1c;
+        }
+
+        .output {
+            width: 100%;
+            min-height: 150px;
+
+            padding: 20px;
+
+            background: #f8fafc;
+
+            border: 2px solid var(--border);
+            border-radius: 12px;
+
+            text-align: center;
+
+            line-height: 1.8;
+
+            word-break: break-word;
+        }
+
+        .local {
+            color: var(--primary);
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .box {
+                width: min(400px, 90vw);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- =========================
+             PROFILE FORM
+        ========================== -->
+
+        <div class="box">
+
+            <h2>Mini Profile</h2>
+
+            <h4>Enter First Name</h4>
+
+            <input
+                id="inputname"
+                type="text"
+                class="input"
+                placeholder="Ayoub"
+                required
+            >
+
+            <h4>Enter Email</h4>
+
+            <input
+                id="inputemail"
+                type="email"
+                class="input"
+                placeholder="example@gmail.com"
+                required
+            >
+
+            <h4>Enter Your Favourite Color</h4>
+
+            <input
+                id="inputcolor"
+                type="text"
+                class="input"
+                placeholder="red"
+                required
+            >
+
+        </div>
+
+
+        <!-- =========================
+             STORAGE
+        ========================== -->
+
+        <div class="box">
+
+            <button onclick="SaveData()">
+                Save Data
+            </button>
+
+            <button onclick="LoadData()">
+                Load Data
+            </button>
+
+            <button
+                class="delete"
+                onclick="DeleteData()">
+                Delete Data
+            </button>
+
+            <h2>Stored Data</h2>
+
+            <div id="output" class="output">
+                No data loaded.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // ==========================================
+        // GET HTML ELEMENTS
+        // ==========================================
+
+        const inputName =
+            document.getElementById("inputname");
+
+        const inputEmail =
+            document.getElementById("inputemail");
+
+        const inputColor =
+            document.getElementById("inputcolor");
+
+        const output =
+            document.getElementById("output");
+
+
+        // ==========================================
+        // SAVE DATA
+        // ==========================================
+
+        function SaveData()
+        {
+            const name = inputName.value.trim();
+            const email = inputEmail.value.trim();
+            const color = inputColor.value.trim();
+
+
+            // Check name
+            if (name === "")
+            {
+                alert("Please enter your name.");
+
+                inputName.focus();
+
+                return;
+            }
+
+
+            // Check email
+            if (!inputEmail.checkValidity())
+            {
+                alert("Please enter a valid email.");
+
+                inputEmail.focus();
+
+                return;
+            }
+
+
+            // Check color
+            if (color === "")
+            {
+                alert("Please enter your favourite color.");
+
+                inputColor.focus();
+
+                return;
+            }
+
+
+            // Save data
+            localStorage.setItem(
+                "profileName",
+                name
+            );
+
+            localStorage.setItem(
+                "profileEmail",
+                email
+            );
+
+            localStorage.setItem(
+                "profileColor",
+                color
+            );
+
+
+            ShowData();
+
+            alert("Data saved successfully!");
+        }
+
+
+        // ==========================================
+        // LOAD DATA
+        // ==========================================
+
+        function LoadData()
+        {
+            const name =
+                localStorage.getItem("profileName");
+
+            const email =
+                localStorage.getItem("profileEmail");
+
+            const color =
+                localStorage.getItem("profileColor");
+
+
+            // No data
+            if (name === null)
+            {
+                alert("No saved data found.");
+
+                return;
+            }
+
+
+            // Put data back into inputs
+            inputName.value = name;
+
+            inputEmail.value = email;
+
+            inputColor.value = color;
+
+
+            // Show data
+            ShowData();
+
+            alert("Data loaded successfully!");
+        }
+
+
+        // ==========================================
+        // SHOW DATA
+        // ==========================================
+
+        function ShowData()
+        {
+            const name =
+                localStorage.getItem("profileName");
+
+            const email =
+                localStorage.getItem("profileEmail");
+
+            const color =
+                localStorage.getItem("profileColor");
+
+
+            if (name === null)
+            {
+                output.textContent =
+                    "No data loaded.";
+
+                return;
+            }
+
+
+            output.innerHTML = `
+                <div class="local">
+                    <strong>Name:</strong>
+                    ${name}
+                </div>
+
+                <div>
+                    <strong>Email:</strong>
+                    ${email}
+                </div>
+
+                <div>
+                    <strong>Favourite Color:</strong>
+
+                    <span style="color: ${color}">
+                        ${color}
+                    </span>
+                </div>
+            `;
+        }
+
+
+        // ==========================================
+        // DELETE DATA
+        // ==========================================
+
+        function DeleteData()
+        {
+            localStorage.removeItem("profileName");
+
+            localStorage.removeItem("profileEmail");
+
+            localStorage.removeItem("profileColor");
+
+
+            // Clear inputs
+            inputName.value = "";
+
+            inputEmail.value = "";
+
+            inputColor.value = "";
+
+
+            // Clear output
+            output.textContent =
+                "No data loaded.";
+
+
+            alert("Data deleted successfully!");
+        }
+
+
+        // ==========================================
+        // LOAD STORED DATA WHEN PAGE OPENS
+        // ==========================================
+
+        ShowData();
+
+    </script>
+
+</body>
+
+</html>

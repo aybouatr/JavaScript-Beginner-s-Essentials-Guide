@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>localStorage vs sessionStorage</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --background: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            gap: 30px;
+
+            background: var(--background);
+
+            font-family: Arial, sans-serif;
+            color: var(--text);
+        }
+
+        h1 {
+            color: var(--primary);
+
+            font-size: 32px;
+            font-weight: 700;
+
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        .box {
+            width: 400px;
+            min-height: 500px;
+
+            padding: 40px;
+
+            background: var(--card);
+
+            border: 1px solid var(--border);
+            border-radius: 20px;
+
+            box-shadow:
+                0 10px 25px rgba(0, 0, 0, 0.08),
+                0 20px 40px rgba(0, 0, 0, 0.06);
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            gap: 20px;
+        }
+
+        .box h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .input {
+            width: 100%;
+
+            padding: 14px 16px;
+
+            border: 2px solid var(--border);
+            border-radius: 12px;
+
+            background: #f8fafc;
+
+            color: var(--text);
+
+            font-size: 16px;
+
+            text-align: center;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .input:focus {
+            border-color: var(--primary);
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .input::placeholder {
+            color: #94a3b8;
+        }
+
+        button {
+            width: 100%;
+
+            padding: 14px 20px;
+
+            border: none;
+            border-radius: 12px;
+
+            background: var(--primary);
+
+            color: white;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 20px rgba(37, 99, 235, 0.25);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .delete {
+            background: var(--danger);
+        }
+
+        .delete:hover {
+            background: #b91c1c;
+        }
+
+        .output {
+            width: 100%;
+            min-height: 150px;
+
+            padding: 20px;
+
+            background: #f8fafc;
+
+            border: 2px solid var(--border);
+            border-radius: 12px;
+
+            text-align: center;
+
+            line-height: 1.8;
+
+            word-break: break-word;
+        }
+
+        .local {
+            color: #2563eb;
+        }
+
+        .session {
+            color: #16a34a;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .box {
+                width: min(400px, 90vw);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>localStorage vs sessionStorage</h1>
+
+    <div class="container">
+
+        <!-- Storage controls -->
+        <div class="box">
+
+            <h2>Web Storage</h2>
+
+            <p>Enter your name</p>
+
+            <input
+                id="input"
+                type="text"
+                class="input"
+                placeholder="Enter your name"
+            >
+
+            <button onclick="SaveLocalStorage()">
+                Save Local Storage
+            </button>
+
+            <button onclick="SaveSessionStorage()">
+                Save Session Storage
+            </button>
+
+            <button
+                class="delete"
+                onclick="DeleteLocalStorage()">
+                Delete Local Storage
+            </button>
+
+            <button
+                class="delete"
+                onclick="DeleteSessionStorage()">
+                Delete Session Storage
+            </button>
+
+            <button onclick="ShowData()">
+                Show Data
+            </button>
+
+        </div>
+
+
+        <!-- Output -->
+        <div class="box">
+
+            <h2>Stored Data</h2>
+
+            <div id="output" class="output">
+                No data loaded.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const input = document.getElementById("input");
+        const output = document.getElementById("output");
+
+
+        // ==========================================
+        // SAVE TO LOCAL STORAGE
+        // ==========================================
+
+        function SaveLocalStorage()
+        {
+            const name = input.value;
+
+            if (name === "")
+            {
+                alert("Please enter your name.");
+                return;
+            }
+
+            localStorage.setItem("name", name);
+
+            alert("Name saved in localStorage.");
+        }
+
+
+        // ==========================================
+        // SAVE TO SESSION STORAGE
+        // ==========================================
+
+        function SaveSessionStorage()
+        {
+            const name = input.value;
+
+            if (name === "")
+            {
+                alert("Please enter your name.");
+                return;
+            }
+
+            sessionStorage.setItem("name", name);
+
+            alert("Name saved in sessionStorage.");
+        }
+
+
+        // ==========================================
+        // DELETE LOCAL STORAGE
+        // ==========================================
+
+        function DeleteLocalStorage()
+        {
+            localStorage.removeItem("name");
+
+            alert("localStorage data deleted.");
+
+            ShowData();
+        }
+
+
+        // ==========================================
+        // DELETE SESSION STORAGE
+        // ==========================================
+
+        function DeleteSessionStorage()
+        {
+            sessionStorage.removeItem("name");
+
+            alert("sessionStorage data deleted.");
+
+            ShowData();
+        }
+
+
+        // ==========================================
+        // SHOW DATA
+        // ==========================================
+
+        function ShowData()
+        {
+            const localData = localStorage.getItem("name");
+            const sessionData = sessionStorage.getItem("name");
+
+            output.innerHTML = `
+                <div class="local">
+                    <strong>Local Storage:</strong>
+                    <br>
+                    ${localData ?? "Empty"}
+                </div>
+
+                <br>
+
+                <div class="session">
+                    <strong>Session Storage:</strong>
+                    <br>
+                    ${sessionData ?? "Empty"}
+                </div>
+            `;
+        }
+
+
+        // ==========================================
+        // LOAD DATA WHEN PAGE OPENS
+        // ==========================================
+
+        ShowData();
+
+    </script>
+
+</body>
+</html>

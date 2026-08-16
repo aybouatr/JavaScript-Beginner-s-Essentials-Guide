@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>onclick vs addEventListener</title>
+</head>
+
+    <style>
+
+        :root 
+      {
+        --gold: #d4af37;
+        --gold-dark: #b58f1e;
+        --black: #0a0a0a;
+        --text-light: #fdf6d5;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: url("tasbeeh-gold.png") no-repeat center center fixed;
+        font-family: "Noto Kufi Arabic", sans-serif;
+        color: var(--text-light);
+        background-color: #080806;
+        direction: rtl;
+      }
+
+       .box {
+        background: linear-gradient(145deg, #111 0%, #000 100%);
+        border: 3px solid var(--gold);
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.4),
+          inset 0 0 15px rgba(212, 175, 55, 0.2);
+        padding: 50px 60px;
+        text-align: center;
+        width: 600px;
+        position: relative;
+      }
+
+      button
+      {
+        background: linear-gradient(145deg, #ab6f6f 0%, #000 100%);
+        border: 3px solid var(--gold);
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.4),
+          inset 0 0 15px rgba(212, 175, 55, 0.2);
+        padding: 50px 60px;
+        text-align: center;
+        width: 250px;
+        position: relative;
+        color: blue;
+        font-size: larger;
+      }
+
+
+    </style>
+
+<body>
+    
+    <div class="box">
+        
+        <button id="btn1" onclick="ShowMessage1()">Button1</button>
+        <button id="btn">Button2</button>
+
+
+    </div>
+    
+
+    <script>
+
+        function ShowMessage1()
+        {
+            alert("this my 111111111\n");
+        }
+
+        function ShowMessage2()
+        {
+            alert("this my 2222222\n");
+        }
+
+        function ShowMessage3()
+        {
+            alert("this my 33333333333\n");
+        }
+
+        const btn = document.getElementById("btn");
+        const btn1 = document.getElementById("btn1");
+
+        // btn1.click = ShowMessage1();
+        // btn1.click = ShowMessage3();
+        
+
+        btn.addEventListener("click",ShowMessage1);
+        btn.addEventListener("click",ShowMessage2);
+        btn.addEventListener("click",ShowMessage3);
+
+
+
+    </script>
+</body>
+</html>

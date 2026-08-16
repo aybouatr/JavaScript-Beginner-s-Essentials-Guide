@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="Activity2 Digital Tasbeeh.js"></script>
+</head>
+
+    <style>
+
+        .cadre 
+        {
+            height: 400px;
+            width: 300px;
+
+            background-color: rgb(19, 18, 17);
+            border: 3px solid rgb(158, 146, 146);
+            border-radius: 15px;
+
+            /* Center the card */
+            margin: 50px auto;
+
+            /* Shadow */
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+
+            /* Center text */
+            text-align: center;
+            color: black;
+            font-size: large;
+
+            /* Better spacing */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        button
+        {
+            height: 80px;
+            width: 120px;
+
+            background-color: aquamarine;
+            border: 3px solid rgb(88, 85, 85);
+
+            border-radius: 20px;
+            margin: 50px auto;
+
+
+            text-align: center;
+            color: black;
+            font-size: large;
+
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .cadre:hover 
+        {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+        }
+
+
+    </style>
+
+<body>
+
+
+    <div class="cadre">
+
+        <h1 id="Tasbeeh">ابدأ التسبيح</h1>
+
+        <button id="btn" onclick="StartTasbeeh()">Start</button>
+
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Navigator Object Demo</title>
+
+    <style>
+
+      body 
+      {
+        padding: 40px;
+        background: #f4f4f4;
+        font-family: Arial, sans-serif;
+      }
+
+      button 
+      {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      #infoBox {
+        width: 90%;
+        margin-top: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        border: 2px solid #007bff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        word-wrap: break-word;
+      }
+
+      .label {
+        font-weight: bold;
+        color: #0056b3;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Navigator Object Demo</h2>
+
+    <button onclick="showNavigatorInfo()">Show Navigator Info</button>
+    <button onclick="getLocation()">Get Current Location</button>
+
+    <div id="infoBox"></div>
+
+    <script>
+      function showNavigatorInfo()
+      {
+        const info = `
+        <div><span class="label">User Agent:</span> ${navigator.userAgent}</div>
+        <div><span class="label">Language:</span> ${navigator.language}</div>
+        <div><span class="label">Online:</span> ${navigator.onLine}</div>
+        <div><span class="label">Cookies Enabled:</span> ${
+          navigator.cookieEnabled
+        }</div>
+        <div><span class="label">Clipboard API:</span> ${
+          navigator.clipboard ? "Available" : "Not supported"
+        }</div>
+      `;
+        document.getElementById("infoBox").innerHTML = info;
+      }
+
+      function getLocation() {
+        if (!navigator.geolocation) {
+          document.getElementById("infoBox").innerHTML =
+            "<span class='label'>Geolocation:</span> Not supported";
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            document.getElementById("infoBox").innerHTML = `
+          <div><span class="label">Latitude:</span> ${position.coords.latitude}</div>
+          <div><span class="label">Longitude:</span> ${position.coords.longitude}</div>
+        `;
+          },
+          (error) => {
+            document.getElementById(
+              "infoBox"
+            ).innerHTML = `<span class="label">Error:</span> ${error.message}`;
+          }
+        );
+      }
+    </script>
+  </body>
+</html>

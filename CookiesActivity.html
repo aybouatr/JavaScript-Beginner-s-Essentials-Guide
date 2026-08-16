@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cookie Demo</title>
+
+    <style>
+      body {
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #f0f2f5;
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 360px;
+      }
+
+      h2 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      input {
+        padding: 12px;
+        width: 100%;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        margin: 6px 0;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s ease;
+      }
+
+      button:hover {
+        background: #0056b3;
+        transform: scale(1.03);
+      }
+
+      #result {
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 1rem;
+        color: #222;
+        background: #f8f9fa;
+        border-radius: 8px;
+        min-height: 40px;
+        width: 100%;
+        word-wrap: break-word;
+        text-align: left;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h2>🍪 Cookie Demo</h2>
+
+      <input id="nameBox" type="text" placeholder="Enter your name" />
+      <input
+        id="colorBox"
+        type="text"
+        placeholder="Enter your favorite color"
+      />
+
+      <button onclick="saveCookies()">Save Cookies</button>
+      <button onclick="readSpecificCookies()">Read Saved Cookies</button>
+      <button onclick="deleteCookies()">Delete Cookies</button>
+
+      <div id="result"></div>
+    </div>
+
+    <script>
+      // ---------------------------------------------------------
+      // Function: Save TWO Cookies (username + favoriteColor)
+      // ---------------------------------------------------------
+      function saveCookies() {
+        const name = document.getElementById("nameBox").value;
+        const color = document.getElementById("colorBox").value;
+
+        // Create an expiration date 7 days from now
+        const expiration = new Date();
+        expiration.setDate(expiration.getDate() + 7);
+
+        // Create cookie 1
+        document.cookie =
+          "username=" +
+          name +
+          "; expires=" +
+          expiration.toUTCString() +
+          "; path=/";
+
+        // Create cookie 2
+        document.cookie =
+          "favoriteColor=" +
+          color +
+          "; expires=" +
+          expiration.toUTCString() +
+          "; path=/";
+
+        alert("Cookies saved!");
+      }
+
+      // ---------------------------------------------------------
+      // Helper Function: Get a specific cookie by name
+      // ---------------------------------------------------------
+      function getCookie(cookieName) {
+        // Split all cookies into an array
+        const cookies = document.cookie.split(";");
+
+        // Loop through cookie list
+        for (let c of cookies) {
+          c = c.trim();
+
+          // Look for "cookieName="
+          if (c.startsWith(cookieName + "=")) {
+            // Return only the value
+            return c.substring(cookieName.length + 1);
+          }
+        }
+
+        return null; // Not found
+      }
+
+      // ---------------------------------------------------------
+      // Function: Read Two Specific Cookies
+      // ---------------------------------------------------------
+      function readSpecificCookies() {
+        const name = getCookie("username");
+        const color = getCookie("favoriteColor");
+
+        const resultBox = document.getElementById("result");
+
+        resultBox.innerHTML = `<strong>Saved Cookies:</strong><br><br>
+         Username: ${name ?? "❌ Not Found"}<br>
+         Favorite Color: ${color ?? "❌ Not Found"}`;
+      }
+
+      // ---------------------------------------------------------
+      // Function: Delete Both Cookies
+      // ---------------------------------------------------------
+      function deleteCookies() {
+        // Set expiration to a past date to remove cookies
+        document.cookie =
+          "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+        document.cookie =
+          "favoriteColor=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+
+        alert("Cookies deleted!");
+        document.getElementById("result").innerHTML = "";
+      }
+    </script>
+  </body>
+</html>

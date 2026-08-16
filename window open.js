@@ -8,7 +8,7 @@ function openWindow() {
     myWin.document.write(
         "<h2>This is a new window opened by JavaScript.</h2>"
     );
-    myWin.document.close();
+    myWin.document.close(); 
 }
 
 // function closeWindow() 

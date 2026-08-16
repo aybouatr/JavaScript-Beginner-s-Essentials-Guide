@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scrolling Demo</title>
+    <style>
+      body {
+        height: 2000px;
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 40px;
+      }
+
+      button {
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      #output {
+        margin-top: 30px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        position: fixed;
+      }
+
+      /* Fixed scroll up button at bottom */
+      #scrollUp {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background-color: gold;
+        color: black;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      #scrollUp:hover {
+        background-color: orange;
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ScrollX / ScrollY / ScrollTo / ScrollBy</h1>
+
+    <button onclick="showScroll()">Show Scroll Position</button>
+    <button onclick="scrollToTop()">Scroll To Top</button>
+    <button onclick="scrollDown()">Scroll Down (By 300px)</button>
+    <button onclick="scrollSmooth()">Smooth Scroll To Bottom</button>
+
+    <div id="output">Current Scroll: X=0, Y=0</div>
+
+    <!-- Scroll Up button -->
+    <button id="scrollUp" onclick="scrollToTop()">⬆ Scroll Up</button>
+
+    <script>
+      function showScroll() {
+        // Display current scroll position
+        document.getElementById(
+          "output"
+        ).textContent = `Current Scroll: X=${window.scrollX}, Y=${window.scrollY}`;
+      }
+
+      function scrollToTop() {
+        // Smoothly scroll to the top of the page
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function scrollDown() {
+        // Scroll down 300 pixels relative to the current position
+        window.scrollBy({ top: 300, behavior: "smooth" });
+      }
+
+      function scrollSmooth() {
+        // Smoothly scroll to the bottom
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+
+      // Update display when user manually scrolls
+      window.addEventListener("scroll", showScroll);
+
+      
+    </script>
+  </body>
+</html>

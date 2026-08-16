@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mini Profile Saver (Web Storage)</title>
+
+    <style>
+      body 
+      {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+      }
+
+      .container {
+        background: #ffffff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        width: 380px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin: 8px 0 4px;
+        font-weight: bold;
+      }
+
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        font-size: 1rem;
+      }
+
+      .buttons {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background-color: #007bff;
+        color: white;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: scale(1.03);
+      }
+
+      #output {
+        margin-top: 18px;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 6px;
+        min-height: 50px;
+        font-size: 0.95rem;
+        border: 1px solid #ddd;
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Mini Profile Saver</h2>
+
+      <!-- Form fields -->
+      <label for="nameInput">Name</label>
+      <input id="nameInput" type="text" placeholder="Enter your name" />
+
+      <label for="emailInput">Email</label>
+      <input id="emailInput" type="email" placeholder="Enter your email" />
+
+      <label for="colorInput">Favorite Color</label>
+      <input
+        id="colorInput"
+        type="text"
+        placeholder="Enter your favorite color"
+      />
+
+      <!-- Buttons for Local Storage actions -->
+      <div class="buttons">
+        <button onclick="saveProfile()">Save in localStorage</button>
+        <button onclick="loadProfile()">Load from localStorage</button>
+        <button onclick="deleteEmail()">Delete Email Only</button>
+        <button onclick="clearLocalStorage()">Clear All localStorage</button>
+      </div>
+
+      <!-- Area to display loaded data -->
+      <div id="output"></div>
+    </div>
+
+    <script>
+      // -------------------------------------------------------------------
+      // Helper function: Get all input elements and return their values
+      // -------------------------------------------------------------------
+      function getFormValues() {
+        // Read current values from input fields
+        const name = document.getElementById("nameInput").value;
+        const email = document.getElementById("emailInput").value;
+        const favoriteColor = document.getElementById("colorInput").value;
+
+        // Return them as an object so it's easier to use
+        return { name, email, favoriteColor };
+      }
+
+      // -------------------------------------------------------------------
+      // 1) Save profile data to localStorage
+      // -------------------------------------------------------------------
+      function saveProfile() {
+        // Get form values (name, email, favoriteColor)
+        const { name, email, favoriteColor } = getFormValues();
+
+        // Store each item separately in localStorage using a unique key
+        // localStorage always stores values as strings
+        localStorage.setItem("profile_name", name);
+        localStorage.setItem("profile_email", email);
+        localStorage.setItem("profile_color", favoriteColor);
+
+        // Give feedback to the user
+        alert("Profile saved in localStorage.");
+      }
+
+      // -------------------------------------------------------------------
+      // 2) Load profile data from localStorage and display it
+      // -------------------------------------------------------------------
+      function loadProfile() {
+        // Read values from localStorage using the same keys used when saving
+        const name = localStorage.getItem("profile_name");
+        const email = localStorage.getItem("profile_email");
+        const favoriteColor = localStorage.getItem("profile_color");
+
+        // Build a result string
+        // Use fallback text if a value does not exist
+        const text =
+          "Loaded from localStorage:\n" +
+          "Name: " +
+          (name ?? "Not found") +
+          "\n" +
+          "Email: " +
+          (email ?? "Not found") +
+          "\n" +
+          "Favorite Color: " +
+          (favoriteColor ?? "Not found");
+
+        // Display the result in the output div
+        document.getElementById("output").textContent = text;
+
+        // Optionally, also put the loaded values back into the form fields
+        if (name !== null) document.getElementById("nameInput").value = name;
+        if (email !== null) document.getElementById("emailInput").value = email;
+        if (favoriteColor !== null)
+          document.getElementById("colorInput").value = favoriteColor;
+      }
+
+      // -------------------------------------------------------------------
+      // 3) Delete one specific item from localStorage (example: email only)
+      // -------------------------------------------------------------------
+      function deleteEmail() {
+        // Remove only the email field from localStorage
+        localStorage.removeItem("profile_email");
+
+        // Give feedback to the user
+        alert("Email removed from localStorage.");
+
+        // Optionally update the display after deletion
+        loadProfile();
+      }
+
+      // -------------------------------------------------------------------
+      // 4) Clear all profile-related data from localStorage
+      // -------------------------------------------------------------------
+      function clearLocalStorage() {
+        // Option 1: Clear ONLY profile keys (safer in larger apps)
+        localStorage.removeItem("profile_name");
+        localStorage.removeItem("profile_email");
+        localStorage.removeItem("profile_color");
+
+        // If this page uses ONLY these keys, we could also use:
+        // localStorage.clear();  // Clears everything
+        // But in real apps, clear() might delete other data too.
+
+        // Clear output box
+        document.getElementById("output").textContent = "";
+
+        // Clear form fields
+        document.getElementById("nameInput").value = "";
+        document.getElementById("emailInput").value = "";
+        document.getElementById("colorInput").value = "";
+
+        // Feedback to the user
+        alert("All profile data removed from localStorage.");
+      }
+    </script>
+  </body>
+</html>

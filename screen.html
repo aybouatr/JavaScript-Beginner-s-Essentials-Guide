@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Size Comparison</title>
+<style>
+  body { font-family: Arial; padding: 20px; }
+  pre { background: #f4f4f4; padding: 20px; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<h2>Screen vs Window vs Document Sizes</h2>
+<button onclick="showSizes()">Show All Sizes</button>
+
+<pre id="output"></pre>
+
+<script>
+function showSizes() {
+  document.getElementById("output").textContent = `
+🖥️ SCREEN:
+ width:  ${screen.width}
+ height: ${screen.height}
+
+🪟 WINDOW:
+ innerWidth:  ${window.innerWidth}
+ innerHeight: ${window.innerHeight}
+ outerWidth:  ${window.outerWidth}
+ outerHeight: ${window.outerHeight}
+
+📄 DOCUMENT:
+ scrollWidth:  ${document.documentElement.scrollWidth}
+ scrollHeight: ${document.documentElement.scrollHeight}
+ clientWidth:  ${document.documentElement.clientWidth}
+ clientHeight: ${document.documentElement.clientHeight}
+  `;
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Location Object Demo</title>
+
+    <style>
+
+      body 
+      {
+        height: 100vh;
+        margin: 0;
+        padding: 40px;
+        background: #f4f4f4;
+        font-family: Arial, sans-serif;
+      }
+
+      button {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        margin-right: 10px;
+        margin-bottom: 20px;
+        border: none;
+        border-radius: 8px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+      }
+
+      /* Wide, left-aligned info box */
+      #InfoBox {
+        width: 90%;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        border: 2px solid #007bff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        font-size: 1.1rem;
+        text-align: left;
+        line-height: 1.8;
+        word-wrap: break-word; /* Very important for long URLs */
+        overflow-wrap: break-word;
+      }
+
+      .label {
+        font-weight: bold;
+        color: #0056b3;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Location Object Demo</h2>
+
+    <button onclick="showInfo()">Show URL Info</button>
+    <button onclick="goToGoogle()">location.assign()</button>
+    <button onclick="replacePage()">location.replace()</button>
+    <button onclick="reloadPage()">location.reload()</button>
+
+    <div id="InfoBox"></div>
+
+    <script>
+
+    function showInfo()
+    {
+        document.getElementById("InfoBox").innerHTML = `
+          <div><span class="label">href:</span> ${location.href}</div>
+          <div><span class="label">hostname:</span> ${location.hostname}</div>
+          <div><span class="label">pathname:</span> ${location.pathname}</div>
+          <div><span class="label">protocol:</span> ${location.protocol}</div>
+          <div><span class="label">port:</span> ${
+            location.port || "(default)"
+          }</div>
+          <div><span class="label">search:</span> ${
+            location.search || "(none)"
+          }</div>
+          <div><span class="label">hash:</span> ${
+            location.hash || "(none)"
+          }</div>
+        `;
+      }
+
+      function goToGoogle() {
+        location.assign("https://www.google.com");
+      }
+
+      function replacePage() {
+        location.replace("https://www.google.com");
+      }
+
+      function reloadPage() {
+        location.reload();
+      }
+    
+    </script>
+  </body>
+</html>

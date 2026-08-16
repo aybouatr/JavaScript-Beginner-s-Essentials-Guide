@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>تسبيح</title>
+
+    <!-- Noto Kufi Arabic -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+
+      :root 
+      {
+        --gold: #d4af37;
+        --gold-dark: #b58f1e;
+        --black: #0a0a0a;
+        --text-light: #fdf6d5;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: url("tasbeeh-gold.png") no-repeat center center fixed;
+        font-family: "Noto Kufi Arabic", sans-serif;
+        color: var(--text-light);
+        background-color: #080806;
+        direction: rtl;
+      }
+
+      /* Tasbeeh image */
+      .tasbeeh-img {
+        width: 180px;
+        margin-bottom: 25px;
+        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+        border-radius: 10px;
+      }
+
+      /* Logo in the top-left corner */
+      .logo {
+        position: absolute;
+        top: 60px;
+        left: 70px;
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        z-index: 10;
+        filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6));
+        animation: glow 4s ease-in-out infinite alternate;
+      }
+
+      /* ProgrammingAdvices.com link under logo */
+      .site-link {
+        position: absolute;
+        top: 220px;
+        left: 60px;
+        font-size: 0.95rem;
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: bold;
+        z-index: 11;
+        transition: all 0.3s ease-in-out;
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+        animation: pulse 3s infinite ease-in-out;
+      }
+
+      .site-link:hover 
+      {
+        color: #fff4c1;
+        text-shadow: 0 0 20px rgba(212, 175, 55, 0.9),
+          0 0 40px rgba(212, 175, 55, 0.6);
+        transform: scale(1.08);
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.9;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.9;
+        }
+      }
+
+      /* The golden box */
+      .box {
+        background: linear-gradient(145deg, #111 0%, #000 100%);
+        border: 3px solid var(--gold);
+        border-radius: 20px;
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.4),
+          inset 0 0 15px rgba(212, 175, 55, 0.2);
+        padding: 50px 60px;
+        text-align: center;
+        width: 600px;
+        position: relative;
+      }
+
+      .box::before,
+      .box::after {
+        content: "";
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--gold);
+      }
+
+      .box::before {
+        top: 15px;
+        left: 15px;
+        border-top: none;
+        border-left: none;
+        transform: rotate(45deg);
+      }
+
+      .box::after {
+        bottom: 15px;
+        right: 15px;
+        border-bottom: none;
+        border-right: none;
+        transform: rotate(45deg);
+      }
+
+      #status {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 20px 0 30px;
+        color: var(--gold);
+        transition: color 0.3s, transform 0.3s;
+      }
+
+      #startBtn {
+        background: linear-gradient(145deg, var(--gold), var(--gold-dark));
+        color: #000;
+        border: none;
+        padding: 12px 40px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: "Noto Kufi Arabic", sans-serif;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+      }
+
+      #startBtn:hover:not(:disabled) {
+        background: linear-gradient(145deg, #e6c75a, var(--gold));
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
+      }
+
+      #startBtn:disabled {
+        background: #555;
+        color: #ccc;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      @keyframes pop {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Logo -->
+    <img src="logo.png" alt="Logo " class="logo" />
+
+    <!-- Link under logo -->
+    <a href="https://ProgrammingAdvices.com" target="_blank" class="site-link"
+      >ProgrammingAdvices.com</a
+    >
+
+    <!-- Golden Box -->
+    <div class="box">
+      <h1 id="status">ابدأ التسبيح</h1>
+      <button id="startBtn" onclick="startTasbeeh()">ابدأ</button>
+    </div>
+
+    <script>
+
+      function startTasbeeh() 
+      {
+        
+        const Status = document.getElementById("status");
+        const startBtn = document.getElementById("startBtn");
+
+        startBtn.disabled = true;
+
+        let count = 0;
+        let phase = 1;
+
+        function updateMessage() 
+        {
+          count++;
+
+          if (phase === 1) {
+            Status.textContent = "سبحان الله - " + count; // Update the text with the count
+            Status.style.color = "white"; // Set text color
+
+            // When count reaches 33, move to the next phrase (phase 2)
+            if (count === 33) {
+              phase = 2;
+              count = 0; // Reset counter for the next phrase
+            }
+          }
+
+          else if (phase === 2) 
+          {
+            Status.textContent = "الحمد لله - " + count;
+            Status.style.color = "red";
+
+            if (count === 33) {
+              phase = 3;
+              count = 0;
+            }
+          }
+
+          else if (phase === 3) {
+            Status.textContent = "الله أكبر - " + count;
+            Status.style.color = "#d4af37"; // Golden color
+
+            if (count === 33) {
+              phase = 4;
+              count = 0;
+            }
+          }
+
+          else if (phase === 4) {
+            Status.textContent =
+              "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير";
+            Status.style.color = "green";
+
+            // 🛑 Stop the repeating interval (stop calling updateMessage)
+            clearInterval(intervalID);
+
+            // ⏰ Wait 1 second, then show an alert message to the user
+            setTimeout(() => alert("في ميزان حسناتكم"), 1000);
+
+            // 🔓 Re-enable the Start button for another round
+            startBtn.disabled = false;
+          }
+        }
+
+       
+        let intervalID = setInterval(updateMessage, 500);
+      }
+    </script>
+  </body>
+</html>
