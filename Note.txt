@@ -612,3 +612,17 @@ JavaScript to store key/value data inside the browser.
 Cookies are one of the oldest mechanisms for storing small pieces of data in the browser.
   Although today we use localStorage, sessionStorage, and IndexedDB, cookies still remain essential 
   especially for authentication, sessions, and tracking.
+
+-----------------> IndexedDB In Javascript <---------
+
+it's browsers based like for exaple start in safari and add Data i should contunue in safari
+=> it's work only inside the same browser  + same domaine + same profile 
+
+ndexedDB (Indexed Database API) is:
+
+✔ A NoSQL object database
+✔ Runs inside the user’s browser
+✔ Asynchronous and non-blocking
+✔ Stores data in key–value pairs
+✔ Much larger storage capacity
+✔ Works even offline

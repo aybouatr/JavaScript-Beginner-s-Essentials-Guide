@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>IndexedDB Modern Demo</title>
+
+    <style>
+      /* ===============================
+         Global Page Styling
+      =============================== */
+      body 
+      {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #1f2933, #0b7285);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #f8fafc;
+      }
+
+      /* Card container */
+      .card 
+      {
+        background: #111827;
+        padding: 30px 40px;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        width: 420px;
+        text-align: center;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+
+      .card h2 
+      {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.6rem;
+      }
+
+      .subtitle 
+      {
+        font-size: 0.9rem;
+        color: #9ca3af;
+        margin-bottom: 20px;
+      }
+
+      /* Buttons layout */
+      .btn-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      button 
+      {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #e5e7eb;
+        background: #2563eb;
+        transition: background 0.2s ease, transform 0.1s ease,
+          box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+      }
+
+      button:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.5);
+      }
+
+      button:active {
+        transform: translateY(0);
+        box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+      }
+
+      /* Log/Status box */
+      #log {
+        text-align: left;
+        font-size: 0.9rem;
+        background: #020617;
+        border-radius: 10px;
+        padding: 10px 12px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        max-height: 160px;
+        overflow-y: auto;
+        color: #e5e7eb;
+      }
+
+      #log-title {
+        font-size: 0.85rem;
+        color: #9ca3af;
+        margin-bottom: 4px;
+      }
+
+      .log-line {
+        margin: 2px 0;
+      }
+
+      .log-ok {
+        color: #22c55e;
+      }
+
+      .log-error {
+        color: #f97373;
+      }
+
+      .log-info {
+        color: #e5e7eb;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <h2>IndexedDB Simple Example</h2>
+      <div class="subtitle">
+        Add, read, update, and delete a user with <strong>id = 1</strong>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="addUser()">➕ Add User</button>
+        <button onclick="readUser()">📖 Read User</button>
+        <button onclick="updateUser()">✏️ Update User</button>
+        <button onclick="deleteUser()">🗑️ Delete User</button>
+      </div>
+
+      <div id="log-title">Log:</div>
+      <div id="log"></div>
+    </div>
+
+    <script>
+
+
+      /* ==========================================================
+         Utility: Log messages to the on-page log box
+      ========================================================== */
+      
+      function logMessage(message, type = "info") 
+      {
+
+            const logBox = document.getElementById("log");
+            
+            // Create a new line element
+            
+            const line = document.createElement("div");
+            line.classList.add("log-line");
+
+            // Style by type
+            if (type === "ok") 
+                line.classList.add("log-ok");
+            else if (type === "error") 
+                line.classList.add("log-error");
+            else 
+                line.classList.add("log-info");
+
+            line.textContent = message;
+            logBox.appendChild(line);
+
+            // Auto scroll to bottom
+            logBox.scrollTop = logBox.scrollHeight;
+            // Also log to console for debugging
+            console.log(message);
+
+      }
+
+      /* -----------------------------------------------------------
+         GLOBAL DATABASE VARIABLE
+      ----------------------------------------------------------- */
+      // Will store the opened database connection
+      let db;
+
+      /* -----------------------------------------------------------
+         OPEN (OR CREATE) THE DATABASE
+      ----------------------------------------------------------- */
+      // Opens a database named "MyDB" with version 1
+      // If DB does not exist → it will be created
+      let request = indexedDB.open("MyDB", 1);
+
+      /* -----------------------------------------------------------
+         onupgradeneeded EVENT
+         Triggered ONLY when:
+         - The DB is created for the first time
+         - The version number increases
+         - IndexedDB schema changes (new tables, indexes, etc.) can only be done here.
+         - You cannot create object stores later in normal code — only inside onupgradeneeded.
+      ----------------------------------------------------------- */
+    request.onupgradeneeded = function (e)
+    {
+        // Get reference to the DB
+        db = e.target.result;
+
+        // Create an object store (like a table)
+        // keyPath = "id"  → stored objects must contain an "id" property
+        
+        db.createObjectStore("users", { keyPath: "id" });
+
+        logMessage("Object store 'users' created.", "ok");
+    };
+
+      /* -----------------------------------------------------------
+         onsuccess EVENT
+         Fired when DB opens successfully
+      ----------------------------------------------------------- */
+      request.onsuccess = function (e) 
+      {
+        db = e.target.result; // Save the DB instance globally
+        logMessage("✅ Database opened successfully.", "ok");
+      };
+
+      /* -----------------------------------------------------------
+         onerror EVENT
+         Fired when opening the database fails
+      ----------------------------------------------------------- */
+      request.onerror = function (e)
+    {
+        logMessage("❌ Error opening DB: " + e.target.error, "error");
+      };
+
+      /* ===========================================================
+         FUNCTION: ADD DATA
+         - Adds a user with id = 1, name "Ali", age 20
+         - Checks first if user already exists
+      ========================================================== */
+      function addUser() {
+        // Open a read-write transaction on the "users" object store
+        let tx = db.transaction("users", "readwrite");
+        let store = tx.objectStore("users");
+
+        // Try reading key first
+        let check = store.get(1);
+
+        check.onsuccess = () => {
+          // If a record is found, do not add a duplicate
+          if (check.result !== undefined) {
+            logMessage(
+              "❌ Cannot add. User with ID=1 already exists.",
+              "error"
+            );
+            // alert("User already exists!");
+          } else {
+            // Add a new record
+            store.add({ id: 1, name: "Ali", age: 20 });
+
+            tx.oncomplete = () => {
+              logMessage("✅ User with ID=1 added.", "ok");
+            //   alert("User added!");
+            };
+          }
+        };
+
+        // Optional: handle read error
+        check.onerror = () => {
+          logMessage("❌ Error checking existing user before add.", "error");
+        };
+      }
+
+      /* ===========================================================
+         FUNCTION: READ DATA
+         - Reads user with id = 1
+         - Handles case when user does not exist
+      ========================================================== */
+      function readUser() {
+        // Open a read-only transaction
+        let tx = db.transaction("users", "readonly");
+        let store = tx.objectStore("users");
+
+        // Try to get the record with key = 1
+        let req = store.get(1);
+
+        req.onsuccess = () => {
+          // req.result is undefined when record does NOT exist
+          if (req.result === undefined) {
+            logMessage("❌ User with ID=1 not found!", "error");
+            alert("User not found in database!");
+          } else {
+            logMessage(
+              "📖 User found → Name: " +
+                req.result.name +
+                ", Age: " +
+                req.result.age,
+              "ok"
+            );
+            alert("User found: " + req.result.name);
+          }
+        };
+
+        req.onerror = () => {
+          logMessage("❌ Error reading user.", "error");
+          alert("Something went wrong while reading!");
+        };
+      }
+
+      /* ===========================================================
+         FUNCTION: UPDATE DATA
+         - Updates user with id = 1
+         - Only if user already exists
+      ========================================================== */
+      function updateUser() {
+        // Open a read-write transaction
+        let tx = db.transaction("users", "readwrite");
+        let store = tx.objectStore("users");
+
+        // First check if the record exists
+        let check = store.get(1);
+
+        // When the read operation completes
+        check.onsuccess = () => {
+          // If no record found → don't update
+          if (check.result === undefined) {
+            logMessage(
+              "❌ Cannot update. User with ID=1 does NOT exist.",
+              "error"
+            );
+            alert("User not found! Cannot update.");
+            return; // Stop here
+          }
+
+          // If record exists → update it
+          let updatedUser = { id: 1, name: "Koko", age: 30 };
+
+          store.put(updatedUser);
+
+          logMessage("✏️ Updating user with ID=1...", "info");
+
+          tx.oncomplete = () => {
+            logMessage(
+              "✅ Transaction complete: User updated to " +
+                updatedUser.name +
+                ", age " +
+                updatedUser.age,
+              "ok"
+            );
+            alert("User updated!");
+          };
+        };
+
+        // If error happened during read
+        check.onerror = () => {
+          logMessage("❌ Error reading the user before update.", "error");
+        };
+      }
+
+      /* ===========================================================
+         FUNCTION: DELETE DATA
+         - Deletes user with id = 1
+         - Only if user exists
+      ========================================================== */
+      function deleteUser() {
+        // Open a read-write transaction
+        let tx = db.transaction("users", "readwrite");
+        let store = tx.objectStore("users");
+
+        // First check if the record with key=1 exists
+        let check = store.get(1);
+
+        // When the read operation succeeds
+        check.onsuccess = () => {
+          // If no record found → do NOT delete
+          if (check.result === undefined) {
+            logMessage(
+              "❌ Cannot delete. User with ID=1 does NOT exist.",
+              "error"
+            );
+            alert("User not found! Nothing to delete.");
+            return; // Stop execution here
+          }
+
+          // Record found → proceed with deletion
+          store.delete(1);
+
+          logMessage("🗑️ Deleting user with ID=1...", "info");
+
+          tx.oncomplete = () => {
+            logMessage("✅ Transaction complete: User deleted.", "ok");
+            alert("User deleted successfully!");
+          };
+        };
+
+        // Handle potential read error
+        check.onerror = () => {
+          logMessage("❌ Error checking user before deletion.", "error");
+          alert("Error reading user before deletion.");
+        };
+      }
+    </script>
+  </body>
+</html>
