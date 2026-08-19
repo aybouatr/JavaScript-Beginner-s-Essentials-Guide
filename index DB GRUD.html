@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Use IndexedDB - Step by Step</title>
+
+    <style>
+
+    body 
+    {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #1f2933, #0b7285);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #f8fafc;
+        gap: 30px;
+    }
+
+    .output 
+    {
+        width: 90%;
+        min-height: 150px;
+        padding: 20px;
+        background: #f8fafc;
+        color: #111827;
+        border: 2px solid #0b7285;
+        border-radius: 12px;
+        text-align: center;
+        line-height: 1.8;
+        word-break: break-word;
+    }
+
+      /* Card container */
+    .card 
+    {
+        background: #111827;
+        padding: 30px 40px;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        width: 420px;
+        text-align: center;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        column-gap: 30px;
+    }
+
+    .card h2 
+    {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.6rem;
+    }
+
+    button 
+    {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #e5e7eb;
+        background: #2563eb;
+        transition: background 0.2s ease, transform 0.1s ease,
+          box-shadow 0.2s ease;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-group 
+    {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    button:hover 
+    {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.5);
+    }
+
+    input 
+    {
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            
+    }
+
+    input:focus 
+    {
+        outline: none;
+        border-color: #007bff;
+        box-shadow:
+            0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    #log {
+        max-height: 160px;
+        overflow-y: auto;
+        text-align: left;
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 8px;
+    }
+
+    .log-line {
+        margin: 2px 0;
+        font-size: 0.85rem;
+    }
+
+    .log-ok {
+        color: #22c55e;
+    }
+
+    .log-error {
+        color: #f97373;
+    }
+
+    .log-info {
+        color: #e5e7eb;
+    }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="card"> 
+
+        <h2>IndexedDB Simple Example</h2>
+       <div class="btn-group">
+        <button onclick="addUser()">➕ Add User</button>
+        <button onclick="readUser()">📖 Read User</button>
+        <button onclick="GetALLUsers()"> All Users</button>
+        <button onclick="updateUser()">✏️ Update User</button>
+        <button onclick="deleteUser()">🗑️ Delete User</button>
+      </div>
+       
+
+        <input id="Id" placeholder="Enter Id">
+        <input id="Name" placeholder="Enter Name">
+
+        <div id="log-title">Log:</div>
+        <div id="log"></div>
+
+    </div>
+
+
+
+    <div class="card"> 
+
+       <div class="output">Result will appear here...</div>
+
+    </div>
+
+
+    <script>
+
+        let db;
+
+        let request = indexedDB.open("MyDB", 1);
+
+        request.onupgradeneeded = function (e)
+        {
+            // Get reference to the DB
+            db = e.target.result;
+
+            // Create an object store (like a table)
+            // keyPath = "id"  → stored objects must contain an "id" property
+          let store =  db.createObjectStore("users", { keyPath: "id" });
+
+          store.createIndex("indexname","name",{unique :false});
+
+            logMessage("Object store 'users' created.", "ok");
+        };
+
+        request.onsuccess = function (e) 
+        {
+            db = e.target.result; // Save the DB instance globally
+            logMessage("✅ Database opened successfully.", "ok");
+        };
+
+        request.onerror = function (e)
+        {
+            logMessage("❌ Error opening DB: " + e.target.error, "error");
+        };
+
+        function GetId() 
+        {
+           let id = document.getElementById("Id").value; // .value to get what's typed
+
+           if (id.trim() === "" || isNaN(id) || Number(id) <= 0) 
+           {
+                alert("Please enter a valid positive number");
+                return null;   
+           }   
+
+           return id;
+        }
+
+        function GetName()
+        {
+           let Name = document.getElementById("Name").value; // .value to get what's typed
+           if (Name.trim() === "")
+           {
+                alert("Please enter a valid Name");
+                return null; 
+           }
+
+           return Name;
+        }
+
+        function addUser()
+        {
+            let id = GetId();
+            let Name = GetName();
+            if (id === null || Name === null)
+                return;
+
+            let tx = db.transaction("users", "readwrite");
+            let store = tx.objectStore("users");
+
+            let check = store.get(Number(id));
+
+            check.onsuccess = () => 
+            {
+                // If a record is found, do not add a duplicate
+                if (check.result !== undefined) 
+                {
+                  logMessage(
+                    "❌ Cannot add. User with ID=" + id + " already exists.",
+                    "error"
+                  );
+                } 
+                else 
+                {
+                  // Add a new record
+                  store.add({ id: Number(id), name: Name });
+
+                  tx.oncomplete = () => 
+                  {
+                    logMessage("✅ User with ID=" + id + " added.", "ok");
+                  };
+                }
+            };
+
+            // Optional: handle read error
+            check.onerror = () => 
+            {
+                logMessage("❌ Error checking existing user before add.", "error");
+            };
+        }
+
+        function readUser()
+        {
+            let id = GetId();
+            if (id === null)
+                return;
+
+            const tx = db.transaction('users', 'readonly');
+            const store = tx.objectStore('users');
+            const request = store.get(Number(id));
+
+            request.onsuccess = () => 
+            {
+                const result = request.result;
+                const output = document.querySelector('.output');
+
+                if (result === undefined) 
+                {
+                    logMessage("❌ No user found with ID=" + id, "error");
+                    output.textContent = "No user found with ID=" + id;
+                } 
+                else 
+                {
+                    logMessage("📖 Read user: " + JSON.stringify(result), "ok");
+                    output.textContent = "ID: " + result.id + " | Name: " + result.name;
+                }
+            };
+
+            request.onerror = () => 
+            {
+                logMessage("❌ Error reading user.", "error");
+            };
+        }
+
+        function GetALLUsers()
+        {
+            let Name = GetName();
+            if (Name === null)
+                return;
+
+            const tx = db.transaction('users', 'readonly');
+            const store = tx.objectStore('users');
+           
+            let index = store.index("nameIndex");
+
+            let req = index.getAll(Name);
+
+            request.onsuccess = () => 
+            {
+                const result = request.result;
+                const output = document.querySelector('.output');
+
+                if (result === undefined) 
+                {
+                    logMessage("❌ No user found with Name=" + Name, "error");
+                    output.textContent = "No user found with Name=" + Name;
+                } 
+                else 
+                {
+                    logMessage("📖 Read user: " + JSON.stringify(result), "ok");
+                   reg.forEach(element => {
+                     output.textContent = "ID: " + element.id + " | Name: " + element.name;
+                   });
+                }
+            };
+
+            request.onerror = () => 
+            {
+                logMessage("❌ Error reading user.", "error");
+            };
+        }
+
+        function updateUser()
+        {
+            let id = GetId();
+            let Name = GetName();
+            if (id === null || Name === null)
+                return;
+
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const check = store.get(Number(id));
+
+            check.onsuccess = () => 
+            {
+                if (check.result === undefined) 
+                {
+                    logMessage("❌ Cannot update. User with ID=" + id + " does not exist.", "error");
+                } 
+                else 
+                {
+                    store.put({ id: Number(id), name: Name });
+
+                    tx.oncomplete = () => 
+                    {
+                        logMessage("✏️ User with ID=" + id + " updated.", "ok");
+                    };
+                }
+            };
+
+            check.onerror = () => 
+            {
+                logMessage("❌ Error checking user before update.", "error");
+            };
+        }
+
+        function deleteUser()
+        {
+            let id = GetId();
+            if (id === null)
+                return;
+
+            const tx = db.transaction('users', 'readwrite');
+            const store = tx.objectStore('users');
+            const check = store.get(Number(id));
+
+            check.onsuccess = () => 
+            {
+                if (check.result === undefined) 
+                {
+                    logMessage("❌ Cannot delete. User with ID=" + id + " does not exist.", "error");
+                } 
+                else 
+                {
+                    store.delete(Number(id));
+
+                    tx.oncomplete = () => 
+                    {
+                        logMessage("🗑️ User with ID=" + id + " deleted.", "ok");
+                        document.querySelector('.output').textContent = "User " + id + " deleted.";
+                    };
+                }
+            };
+
+            check.onerror = () => 
+            {
+                logMessage("❌ Error checking user before delete.", "error");
+            };
+        }
+
+        // this is a dynamic function to log messages 
+        function logMessage(Message, type = "info")
+        {
+            const logBox = document.getElementById("log");
+
+            const lineElement = document.createElement("div");
+
+            lineElement.classList.add("log-line");
+
+            if (type === "ok")
+                lineElement.classList.add("log-ok");
+            else if (type === "error") 
+                lineElement.classList.add("log-error");
+            else 
+                lineElement.classList.add("log-info");
+
+            lineElement.textContent = Message;
+            logBox.appendChild(lineElement);
+
+            logBox.scrollTop = logBox.scrollHeight;
+
+            console.log(Message);
+        }
+
+    </script>
+    
+</body>
+</html>

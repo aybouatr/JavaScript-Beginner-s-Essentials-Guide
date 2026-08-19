@@ -114,6 +114,7 @@
       .log-info {
         color: #e5e7eb;
       }
+
     </style>
   </head>
 
@@ -228,7 +229,8 @@
          - Adds a user with id = 1, name "Ali", age 20
          - Checks first if user already exists
       ========================================================== */
-      function addUser() {
+      function addUser() 
+      {
         // Open a read-write transaction on the "users" object store
         let tx = db.transaction("users", "readwrite");
         let store = tx.objectStore("users");
@@ -236,15 +238,19 @@
         // Try reading key first
         let check = store.get(1);
 
-        check.onsuccess = () => {
+        check.onsuccess = () => 
+        {
           // If a record is found, do not add a duplicate
-          if (check.result !== undefined) {
+          if (check.result !== undefined) 
+          {
             logMessage(
               "❌ Cannot add. User with ID=1 already exists.",
               "error"
             );
             // alert("User already exists!");
-          } else {
+          } 
+          else 
+          {
             // Add a new record
             store.add({ id: 1, name: "Ali", age: 20 });
 
@@ -266,7 +272,8 @@
          - Reads user with id = 1
          - Handles case when user does not exist
       ========================================================== */
-      function readUser() {
+      function readUser() 
+      {
         // Open a read-only transaction
         let tx = db.transaction("users", "readonly");
         let store = tx.objectStore("users");

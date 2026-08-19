@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>JavaScript Short-Circuiting Playground</title>
+
+    <style>
+      /* ===============================
+         Global Page Styling
+      =============================== */
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(circle at top, #1f2937, #020617 60%);
+        color: #f9fafb;
+      }
+
+      .container {
+        width: 1100px;
+        max-width: 95vw;
+        background: #020617;
+        border-radius: 20px;
+        padding: 24px 26px 26px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.5);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 18px;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 1.9rem;
+      }
+
+      .header p {
+        margin: 6px 0 0;
+        font-size: 0.95rem;
+        color: #9ca3af;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      @media (max-width: 900px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: linear-gradient(145deg, #020617, #030712);
+        border-radius: 16px;
+        padding: 14px 14px 16px;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card h2 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
+
+      .card small {
+        color: #9ca3af;
+        font-size: 0.8rem;
+      }
+
+      label {
+        font-size: 0.85rem;
+        color: #e5e7eb;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+        align-items: center;
+      }
+
+      select {
+        flex: 1;
+        padding: 7px 10px;
+        border-radius: 8px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #f9fafb;
+        font-size: 0.9rem;
+        outline: none;
+      }
+
+      select:focus {
+        border-color: #22c55e;
+        box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.5);
+      }
+
+      button {
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e5e7eb;
+        background: #2563eb;
+        transition: background 0.18s ease, transform 0.12s ease,
+          box-shadow 0.18s ease;
+        box-shadow: 0 3px 10px rgba(37, 99, 235, 0.4);
+        white-space: nowrap;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 16px rgba(37, 99, 235, 0.6);
+      }
+
+      button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+      }
+
+      .btn-secondary {
+        background: #6b7280;
+        box-shadow: 0 3px 10px rgba(75, 85, 99, 0.5);
+      }
+
+      .btn-secondary:hover {
+        background: #4b5563;
+      }
+
+      .output-box {
+        margin-top: 6px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #020617;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        font-size: 0.8rem;
+        min-height: 60px;
+      }
+
+      .output-title {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-bottom: 2px;
+      }
+
+      .output-line {
+        margin: 1px 0;
+      }
+
+      .truthy {
+        color: #22c55e;
+      }
+
+      .falsy {
+        color: #fb7185;
+      }
+
+      /* Console note */
+      .console-note {
+        margin-top: 12px;
+        font-size: 0.8rem;
+        color: #9ca3af;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- ==========================
+           HEADER
+      =========================== -->
+      <div class="header">
+        <h1>JavaScript Short-Circuiting Playground</h1>
+        <p>
+          Experiment with <strong>A || B</strong>, <strong>A && B</strong>, and
+          <strong>!A</strong>. See the returned value, its type, and
+          short-circuit steps.
+        </p>
+      </div>
+
+      <!-- ==========================
+           CARDS
+      =========================== -->
+      <div class="cards">
+        <!-- OR CARD -->
+        <div class="card">
+          <h2>OR (||)</h2>
+          <small
+            >Returns the first truthy value, or the last value if all
+            falsy.</small
+          >
+
+          <label>Pick values for A and B:</label>
+          <div class="row">
+            <select id="orA">
+              <option value="true">true</option>
+              <option value="false">false</option>
+              <option value="1">1</option>
+              <option value="0">0</option>
+              <option value="emptyString">"" (empty string)</option>
+              <option value="hello">"Hello"</option>
+              <option value="null">null</option>
+              <option value="undefined">undefined</option>
+              <option value="NaN">NaN</option>
+            </select>
+
+            <span>||</span>
+
+            <select id="orB">
+              <option value="false">false</option>
+              <option value="true">true</option>
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="emptyString">"" (empty string)</option>
+              <option value="world">"World"</option>
+              <option value="fallback">"fallback"</option>
+              <option value="null">null</option>
+              <option value="undefined">undefined</option>
+            </select>
+          </div>
+
+          <div class="row" style="margin-top: 8px">
+            <button onclick="evaluateOr()">Evaluate A || B</button>
+            <button class="btn-secondary" onclick="clearOr()">Clear</button>
+          </div>
+
+          <div class="output-box">
+            <div class="output-title">Steps & Result:</div>
+            <div id="orOutput"></div>
+          </div>
+        </div>
+
+        <!-- AND CARD -->
+        <div class="card">
+          <h2>AND (&&)</h2>
+          <small
+            >Returns the first falsy value, or the last value if all
+            truthy.</small
+          >
+
+          <label>Pick values for A and B:</label>
+          <div class="row">
+            <select id="andA">
+              <option value="true">true</option>
+              <option value="false">false</option>
+              <option value="1">1</option>
+              <option value="0">0</option>
+              <option value="hello">"Hello"</option>
+              <option value="emptyString">"" (empty string)</option>
+              <option value="null">null</option>
+              <option value="undefined">undefined</option>
+            </select>
+
+            <span>&amp;&amp;</span>
+
+            <select id="andB">
+              <option value="true">true</option>
+              <option value="false">false</option>
+              <option value="1">1</option>
+              <option value="0">0</option>
+              <option value="ok">"OK"</option>
+              <option value="emptyString">"" (empty string)</option>
+              <option value="null">null</option>
+              <option value="undefined">undefined</option>
+            </select>
+          </div>
+
+          <div class="row" style="margin-top: 8px">
+            <button onclick="evaluateAnd()">Evaluate A && B</button>
+            <button class="btn-secondary" onclick="clearAnd()">Clear</button>
+          </div>
+
+          <div class="output-box">
+            <div class="output-title">Steps & Result:</div>
+            <div id="andOutput"></div>
+          </div>
+        </div>
+
+        <!-- NOT CARD -->
+        <div class="card">
+          <h2>NOT (!)</h2>
+          <small>Converts to boolean, then flips the result.</small>
+
+          <label>Pick a value for A:</label>
+          <div class="row">
+            <select id="notA">
+              <option value="true">true</option>
+              <option value="false">false</option>
+              <option value="1">1</option>
+              <option value="0">0</option>
+              <option value="hello">"Hello"</option>
+              <option value="emptyString">"" (empty string)</option>
+              <option value="null">null</option>
+              <option value="undefined">undefined</option>
+              <option value="NaN">NaN</option>
+            </select>
+          </div>
+
+          <div class="row" style="margin-top: 8px">
+            <button onclick="evaluateNot()">Evaluate !A</button>
+            <button class="btn-secondary" onclick="clearNot()">Clear</button>
+          </div>
+
+          <div class="output-box">
+            <div class="output-title">Steps & Result:</div>
+            <div id="notOutput"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="console-note">
+        💻 Open the browser console to see extra logs in the format:
+        <code>label -&gt; value</code>
+      </div>
+    </div>
+
+    <script>
+      // ======================================================
+      // Helper: Convert dropdown token (string) to real JS value
+      // ======================================================
+      function parseValue(token) {
+        // Map the select's string value to actual JavaScript values
+        switch (token) {
+          case "true":
+            return true;
+          case "false":
+            return false;
+          case "1":
+            return 1;
+          case "0":
+            return 0;
+          case "hello":
+            return "Hello";
+          case "world":
+            return "World";
+          case "ok":
+            return "OK";
+          case "fallback":
+            return "fallback";
+          case "emptyString":
+            return "";
+          case "null":
+            return null;
+          case "undefined":
+            return undefined;
+          case "NaN":
+            return NaN;
+          default:
+            // Fallback just in case
+            return token;
+        }
+      }
+
+      // ======================================================
+      // Helper: Format a value with its type for UI display
+      // e.g.  "string: "Hello"", "number: 0", "null: null"
+      // ======================================================
+      function formatValue(value) {
+        // Determine type, with special handling for null and NaN
+        var typeText;
+
+        if (value === null) {
+          typeText = "null";
+        } else if (Number.isNaN(value)) {
+          typeText = "number (NaN)";
+        } else {
+          typeText = typeof value;
+        }
+
+        // Determine value text
+        var valueText;
+
+        if (value === null) {
+          valueText = "null";
+        } else if (value === undefined) {
+          valueText = "undefined";
+        } else if (typeof value === "string") {
+          valueText = '"' + value + '"';
+        } else if (Number.isNaN(value)) {
+          valueText = "NaN";
+        } else {
+          valueText = String(value);
+        }
+
+        return typeText + " : " + valueText;
+      }
+
+      // ======================================================
+      // Helper: Return "truthy" / "falsy" label
+      // ======================================================
+      function truthinessLabel(value) {
+        return Boolean(value) ? "truthy" : "falsy";
+      }
+
+      // ======================================================
+      // OR Evaluation: A || B
+      // ======================================================
+      function evaluateOr() {
+        // Get dropdown elements
+        var selectA = document.getElementById("orA");
+        var selectB = document.getElementById("orB");
+        var outputDiv = document.getElementById("orOutput");
+
+        // Convert tokens to real JS values
+        var aValue = parseValue(selectA.value);
+        var bValue = parseValue(selectB.value);
+
+        // Clear previous output
+        outputDiv.innerHTML = "";
+
+        // ---- Step 1: Show A ----
+        var step1 = document.createElement("div");
+        step1.className = "output-line";
+        step1.innerHTML =
+          "A = " +
+          formatValue(aValue) +
+          ' → <span class="' +
+          (Boolean(aValue) ? "truthy" : "falsy") +
+          '">' +
+          truthinessLabel(aValue) +
+          "</span>";
+        outputDiv.appendChild(step1);
+
+        // Short-circuit logic: if A is truthy, JS stops here
+        if (Boolean(aValue)) {
+          var step2 = document.createElement("div");
+          step2.className = "output-line";
+          step2.textContent =
+            "Because A is truthy, JavaScript returns A and does NOT evaluate B.";
+          outputDiv.appendChild(step2);
+
+          var step3 = document.createElement("div");
+          step3.className = "output-line";
+          step3.textContent = "Result (A || B) = " + formatValue(aValue);
+          outputDiv.appendChild(step3);
+
+          // Log to console
+          console.log("A value ->", aValue);
+          console.log("B value ->", bValue);
+          console.log("A || B result ->", aValue);
+
+          return;
+        }
+
+        // ---- Step 2: Evaluate B if A is falsy ----
+        var step2b = document.createElement("div");
+        step2b.className = "output-line";
+        step2b.innerHTML =
+          "A is falsy, so JavaScript evaluates B.<br>" +
+          "B = " +
+          formatValue(bValue) +
+          ' → <span class="' +
+          (Boolean(bValue) ? "truthy" : "falsy") +
+          '">' +
+          truthinessLabel(bValue) +
+          "</span>";
+        outputDiv.appendChild(step2b);
+
+        var step3b = document.createElement("div");
+        step3b.className = "output-line";
+        step3b.textContent = "Result (A || B) = " + formatValue(bValue);
+        outputDiv.appendChild(step3b);
+
+        // Log to console
+        console.log("A value ->", aValue);
+        console.log("B value ->", bValue);
+        console.log("A || B result ->", bValue);
+      }
+
+      // Clear OR card output
+      function clearOr() {
+        document.getElementById("orOutput").innerHTML = "";
+      }
+
+      // ======================================================
+      // AND Evaluation: A && B
+      // ======================================================
+      function evaluateAnd() {
+        // Get dropdown elements
+        var selectA = document.getElementById("andA");
+        var selectB = document.getElementById("andB");
+        var outputDiv = document.getElementById("andOutput");
+
+        // Convert tokens to JS values
+        var aValue = parseValue(selectA.value);
+        var bValue = parseValue(selectB.value);
+
+        // Clear previous output
+        outputDiv.innerHTML = "";
+
+        // ---- Step 1: Show A ----
+        var step1 = document.createElement("div");
+        step1.className = "output-line";
+        step1.innerHTML =
+          "A = " +
+          formatValue(aValue) +
+          ' → <span class="' +
+          (Boolean(aValue) ? "truthy" : "falsy") +
+          '">' +
+          truthinessLabel(aValue) +
+          "</span>";
+        outputDiv.appendChild(step1);
+
+        // Short-circuit logic: if A is falsy, JS stops here and returns A
+        if (!Boolean(aValue)) {
+          var step2 = document.createElement("div");
+          step2.className = "output-line";
+          step2.textContent =
+            "Because A is falsy, JavaScript returns A and does NOT evaluate B.";
+          outputDiv.appendChild(step2);
+
+          var step3 = document.createElement("div");
+          step3.className = "output-line";
+          step3.textContent = "Result (A && B) = " + formatValue(aValue);
+          outputDiv.appendChild(step3);
+
+          // Log to console
+          console.log("A value ->", aValue);
+          console.log("B value ->", bValue);
+          console.log("A && B result ->", aValue);
+
+          return;
+        }
+
+        // ---- Step 2: Evaluate B if A is truthy ----
+        var step2b = document.createElement("div");
+        step2b.className = "output-line";
+        step2b.innerHTML =
+          "A is truthy, so JavaScript evaluates B.<br>" +
+          "B = " +
+          formatValue(bValue) +
+          ' → <span class="' +
+          (Boolean(bValue) ? "truthy" : "falsy") +
+          '">' +
+          truthinessLabel(bValue) +
+          "</span>";
+        outputDiv.appendChild(step2b);
+
+        var step3b = document.createElement("div");
+        step3b.className = "output-line";
+        step3b.textContent = "Result (A && B) = " + formatValue(bValue);
+        outputDiv.appendChild(step3b);
+
+        // Log to console
+        console.log("A value ->", aValue);
+        console.log("B value ->", bValue);
+        console.log("A && B result ->", bValue);
+      }
+
+      // Clear AND card output
+      function clearAnd() {
+        document.getElementById("andOutput").innerHTML = "";
+      }
+
+      // ======================================================
+      // NOT Evaluation: !A
+      // ======================================================
+      function evaluateNot() {
+        var selectA = document.getElementById("notA");
+        var outputDiv = document.getElementById("notOutput");
+
+        // Convert token to JS value
+        var aValue = parseValue(selectA.value);
+
+        // Clear previous output
+        outputDiv.innerHTML = "";
+
+        // Step 1: Show A, its type, and truthiness
+        var step1 = document.createElement("div");
+        step1.className = "output-line";
+        step1.innerHTML =
+          "A = " +
+          formatValue(aValue) +
+          ' → <span class="' +
+          (Boolean(aValue) ? "truthy" : "falsy") +
+          '">' +
+          truthinessLabel(aValue) +
+          "</span>";
+        outputDiv.appendChild(step1);
+
+        // Step 2: JavaScript converts A to boolean and flips it
+        var boolValue = Boolean(aValue);
+        var notValue = !aValue;
+
+        var step2 = document.createElement("div");
+        step2.className = "output-line";
+        step2.innerHTML =
+          "Boolean(A) = " + boolValue + " → so !A = " + notValue;
+        outputDiv.appendChild(step2);
+
+        // Log to console
+        console.log("A value ->", aValue);
+        console.log("Boolean(A) ->", boolValue);
+        console.log("!A result ->", notValue);
+      }
+
+      // Clear NOT card output
+      function clearNot() {
+        document.getElementById("notOutput").innerHTML = "";
+      }
+    </script>
+  </body>
+</html>
