@@ -998,3 +998,82 @@ IIFEs are a powerful JavaScript pattern that:
 Even though ES6 modules made them less necessary, IIFEs remain essential in interviews, legacy code, libraries, and advanced JS concepts.
 
 ===================> call(), apply(), bind() (Controlling this) <==================
+
+
+
+=========================>📖 for…in vs for…of vs forEach vs map <==================
+
+🔹 Object properties → for…in
+
+🔹 Stop early → for…of
+
+🔹 Transform data → map
+
+🔹 Logging / DOM updates → forEach
+
+--> Async Pitfall: Why await Doesn’t Work Inside forEach()
+
+
+
+===============> to the Date Object <==================
+
+In JavaScript, creating a Date object does NOT guarantee that the date is valid.
+
+✔ You can create a Date object
+❌ But it may represent an invalid date
+
+If you don’t validate dates properly, you may face:
+
+🔹 Incorrect calculations
+🔹 NaN results
+🔹 Silent logic bugs
+🔹 Wrong comparisons between dates
+🔹 Billing, booking, and scheduling errors
+
+==========> What is JSON & Why It Exists <=============
+
+
+
+=================> OOP in JavaScript <==================
+
+--> JavaScript (Limited Encapsulation)
+--> Flexible, dynamic, trust-based OOP
+--> You are responsible for correctness
+--> Introduction JavaScript was originally created as a prototype-based language — not a classical object-oriented one.
+
+===========> Prototype <================
+
+What it is: A prototype is a fallback object that other objects can borrow 
+properties and methods from.
+
+The Goal: Memory efficiency—instead of copying identical functions to thousands of instances, all instances share one function on the prototype.
+
+How Lookup Works: JS checks the local object first $\rightarrow$ checks its prototype $\rightarrow$ checks the prototype's prototype $\rightarrow$ stops at null (Prototype Chain).
+
+Key Methods:
+    Object.create(proto) — Creates a new object linked to proto
+    .Object.getPrototypeOf(obj) — Reads the prototype of obj.
+
+Classes Connection: Modern ES6 class syntax is just cleaner wrapper syntax ("syntactic sugar") built on top of prototypes under the hood.
+
+Interconnections
+🔹 Objects → store data
+🔹 Prototypes → share behavior
+🔹 Classes → organize prototype logic
+🔹 Classes are syntax sugar over prototypes.
+🔹 Inheritance → prototype chain
+🔹 Prototypes are JavaScript’s core inheritance system.
+🔹 Methods are stored on prototypes, not instances.
+🔹 Understanding prototypes prevents confusion and bugs.
+🔹 this → resolved through call context
+
+=====================> Event Loop, Call Stack, Tasks & Microtasks <=============
+
+🧠 JavaScript runs sync code first, then microtasks, then macrotasks — forever.
+
+By understanding the Event Loop, you stop guessing execution order and start predicting it with confidence.
+
+-------> Promise Combinators
+
+==> Promise combinators are tools that help you coordinate many promises together and decide when and how to continue.
+

@@ -1,0 +1,21 @@
+{
+  "name": "javascript-beginner-s-essentials-guide",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Activity - Closures, Callbacks & First-Class Functions.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aybouatr/JavaScript-Beginner-s-Essentials-Guide.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aybouatr/JavaScript-Beginner-s-Essentials-Guide/issues"
+  },
+  "homepage": "https://github.com/aybouatr/JavaScript-Beginner-s-Essentials-Guide#readme",
+  "type": "module"
+}

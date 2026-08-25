@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Consuming Promises Example</title>
+</head>
+<body>
+
+  <h2>Open the Console to See Output</h2>
+
+  <script>
+    /*──────────────────────────────────────────────
+    │ Code Overview
+    │──────────────────────────────────────────────
+    │ Purpose        → Demonstrate consuming a Promise in the browser
+    │ Layout         → Single HTML file with inline JavaScript
+    │ Use Cases      → Learning Promises, async flow, browser behavior
+    │ Key Properties → Promise, then(), catch(), finally()
+    └──────────────────────────────────────────────*/
+
+    console.log("Page loaded");
+
+    // Create a Promise
+    const promise = new Promise((resolve, reject) => {
+      const success = true; // toggle to false to test error path
+
+      // Simulate async task (e.g. network request)
+      setTimeout(() => {
+        if (success) {
+          resolve(10);
+        } else {
+          reject("Failed");
+        }
+      }, 1000);
+    });
+
+    // Consume the Promise
+    promise
+      .then(value => {
+        console.log("Original value:", value);
+        return value * 2; // pass to next step
+      })
+      .then(result => {
+        console.log("Doubled value:", result);
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        console.log("Finished");
+      });
+
+    console.log("JavaScript is non-blocking");
+  </script>
+
+</body>
+</html>
