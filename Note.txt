@@ -1077,3 +1077,4 @@ By understanding the Event Loop, you stop guessing execution order and start pre
 
 ==> Promise combinators are tools that help you coordinate many promises together and decide when and how to continue.
 
+i shoud always check response for status code 
