@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Project 3 — Timeout Fetch</title>
+    <style>
+      body {
+        font-family: system-ui;
+        margin: 0;
+        padding: 24px;
+        background: #0b1020;
+        color: #e9eefc;
+      }
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 16px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        background: #4f7cff;
+        color: #fff;
+        font-weight: 700;
+      }
+      input {
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(0, 0, 0, 0.22);
+        color: #e9eefc;
+        padding: 10px 12px;
+        outline: none;
+      }
+      pre {
+        white-space: pre-wrap;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px;
+        border-radius: 14px;
+        margin-top: 12px;
+      }
+      .muted {
+        opacity: 0.75;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card">
+        <!--──────────────────────────────────────────────
+      │ Code Overview
+      │ Purpose        → Demonstrate Promise.race() for timeouts
+      │ Layout         → Single HTML file (UI + fetch)
+      │ Use Cases      → Timeouts, “fastest wins” behavior
+      │ Key Properties → Promise.race(), setTimeout(), async/await
+      └──────────────────────────────────────────────-->
+        <h2 style="margin: 0 0 8px">Timeout Fetch (Promise.race)</h2>
+        <p class="muted" style="margin: 0 0 14px">
+          Fetches a post. If it takes too long, we timeout.
+        </p>
+
+        <div class="row">
+          <button id="btn">Fetch Post</button>
+          <label class="muted">Timeout (ms)</label>
+          <input
+            id="ms"
+            type="number"
+            value="600"
+            min="50"
+            step="50"
+            style="width: 120px"
+          />
+        </div>
+
+        <pre id="out" class="muted">Click “Fetch Post”.</pre>
+      </div>
+    </div>
+
+    <script>
+      const btn = document.getElementById("btn");
+      const msInput = document.getElementById("ms");
+      const out = document.getElementById("out");
+
+      // Create a promise that rejects after X ms (our timeout)
+      function timeout(ms) 
+      {
+        return new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(`Timed out after ${ms}ms`)), ms);
+        });
+      }
+
+      async function fetchWithTimeout(url, ms) 
+      {
+        // Promise.race: whichever settles first wins (fetch or timeout)
+        const res = await Promise.race([fetch(url), timeout(ms)]);
+
+        // If fetch wins, we still need to check HTTP status
+        if (!res.ok) throw new Error("Server responded with error.");
+        return res.json();
+      }
+
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        out.textContent = "Loading…";
+
+        const ms = Number(msInput.value);
+
+        try {
+          const data = await fetchWithTimeout(
+            "https://jsonplaceholder.typicode.com/posts/1",
+            ms
+          );
+          out.textContent = JSON.stringify(data, null, 2);
+        } catch (e) {
+          out.textContent = `❌ ${e.message}`;
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

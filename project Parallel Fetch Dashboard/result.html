@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Project 2 — Parallel Dashboard</title>
+    <style>
+
+      body 
+      {
+        font-family: system-ui;
+        margin: 0;
+        padding: 24px; 
+        background: #0b1020;
+        color: #e9eefc;
+      }
+
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .card 
+      {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 16px;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        background: #4f7cff;
+        color: #fff;
+        font-weight: 700;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .stat {
+        padding: 14px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .muted {
+        opacity: 0.75;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card">
+        <!--──────────────────────────────────────────────
+      │ Code Overview
+      │ Purpose        → Fetch multiple endpoints in parallel (faster)
+      │ Layout         → Single HTML file dashboard
+      │ Use Cases      → Parallel awaits with Promise.all
+      │ Key Properties → Promise.all(), async/await, error handling
+      └──────────────────────────────────────────────-->
+        <h2 style="margin: 0 0 8px">Parallel Fetch Dashboard</h2>
+        <p class="muted" style="margin: 0 0 14px">
+          Loads users + posts at the same time and shows quick stats.
+        </p>
+
+        <div class="row">
+          <button id="btn">Load Dashboard</button>
+          <span class="pill" id="status">Idle</span>
+        </div>
+
+        <div class="stats" id="stats"></div>
+        <div class="muted" id="err" style="margin-top: 12px"></div>
+      </div>
+    </div>
+
+    <script> 
+
+      const btn = document.getElementById("btn");
+      const statusEl = document.getElementById("status");
+      const stats = document.getElementById("stats");
+      const err = document.getElementById("err");
+
+      function setStatus(text) 
+      {
+        statusEl.textContent = text;
+      }
+
+      function card(title, value, note = "") {
+        return `
+        <div class="stat">
+          <div class="muted">${title}</div>
+          <div style="font-size:28px;font-weight:800;margin-top:6px;">${value}</div>
+          <div class="muted" style="margin-top:6px;">${note}</div>
+        </div>
+      `;
+      }
+
+      async function loadDashboard() 
+      {
+        btn.disabled = true;
+        err.textContent = "";
+        stats.innerHTML = "";
+        setStatus("Loading…");
+
+        try {
+          // Start both requests immediately (parallel)
+          const [usersRes, postsRes] = await Promise.all([
+            fetch("https://jsonplaceholder.typicode.com/users"),
+            fetch("https://jsonplaceholder.typicode.com/posts"),
+          ]);
+
+          if (!usersRes.ok || !postsRes.ok)
+            throw new Error("One of the requests failed.");
+
+          // Parse JSON in parallel too
+          const [users, posts] = await Promise.all([
+            usersRes.json(),
+            postsRes.json(),
+          ]);
+
+          // Simple stats
+          const postsPerUser = Math.round(posts.length / users.length);
+
+          stats.innerHTML = [
+            card("Users", users.length.toLocaleString(), "Fetched from API"),
+            card("Posts", posts.length.toLocaleString(), "Fetched from API"),
+            card(
+              "Avg posts/user",
+              postsPerUser.toLocaleString(),
+              "Computed locally"
+            ),
+          ].join("");
+
+          setStatus("✅ Ready");
+        } catch (e) {
+          setStatus("❌ Error");
+          err.textContent = `Failed: ${e.message}`;
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      btn.addEventListener("click", loadDashboard);
+
+    </script>
+  </body>
+</html>

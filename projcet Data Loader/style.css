@@ -1,0 +1,102 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, Arial;
+    margin: 0;
+    padding: 24px;
+    background: #0b1020;
+    color: #e9eefc;
+}
+
+.muted {
+        opacity: 0.75;
+}
+
+.container {
+    width: 60%;
+    height: auto;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #0f172e;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    border-radius: 30px;
+}
+
+.container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: #4f7cff;
+    color: white;
+    font-weight: 600;
+}
+
+.btnsecondary {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    font-weight: 600;
+}
+
+.btn:active {
+    background-color: #4469d6;
+}
+
+
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+}
+
+.card-user {
+    padding: 20px;
+    min-width: 150px;
+    background-color: #2b394e;
+    border-radius: 12px;
+    transition: all 0.3s ease-in-out;
+}
+
+.card-user:hover {
+    box-shadow: #0b1020 0px 0px 10px 2px;
+}
+.card-user:hover {
+    box-shadow: #0b1020 0px 0px 10px 2px;
+    transition: all 0.3s ease-in-out;
+}
+
+      .toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 12px 14px;
+        border-radius: 14px;
+        backdrop-filter: blur(10px);
+        display: none;
+      }
+
+.user-data {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #1e293b;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
