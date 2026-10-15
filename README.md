@@ -1,9 +1,4 @@
 
-```
-
-Browser-only snippets require an HTML document or browser developer tools. **A commented-out failing statement is a teaching example, not working application code.**
-
----
 
 ## 📚 Table of Contents
 
