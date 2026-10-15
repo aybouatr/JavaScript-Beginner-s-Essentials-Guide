@@ -1,19 +1,20 @@
-# 📘 My JavaScript Knowledge Base
+# JavaScript Knowledge Base — Corrected Study README
 
-> A reviewed, corrected, and expanded version of my personal JavaScript study notes.
+> An independently checked revision of the provided JavaScript notes. Examples emphasize **why**, **how**, and **what actually executes**.
+> **Scope:** modern ECMAScript; browser-specific APIs and Node.js are labeled. Engine optimizations and browser policies may vary.
 > Goal: understand JavaScript **deeply** (what happens behind the scenes), remember it, and be able to use it in interviews and real projects.
 
 ---
 
-## 🏷️ Legend: what came from where
+## How to study these notes
 
 | Marker | Meaning |
 |---|---|
-| 📝 | **From my original notes** (kept, possibly rewritten in simpler English) |
-| 🔧 | **Corrected**: my note had a mistake or was misleading |
-| ➕ | **Added**: a missing concept or explanation I did not have in my notes |
+| 📝 | Preserved concept from the uploaded notes; may be rewritten for clarity. |
+| 🔧 | Revised because the original phrasing, result, or example was incorrect/misleading. |
+| ➕ | Added explanation, warning, or exercise that helps understanding. |
 
-Every topic follows the same template so reviewing is predictable:
+Most topics follow a repeatable structure. **Do not run every fenced code block as one program**: some independent examples reuse variable names or intentionally demonstrate errors. Copy one self-contained example at a time. Lines illustrating a SyntaxError are explicitly commented out.
 
 **A** What is it? · **B** Why does it exist? · **C** How does it work internally? · **D** Example · **E** Step-by-step execution · **F** When to use it · **G** Common mistakes · **H** Interview questions · **I** Quick revision
 
@@ -21,23 +22,46 @@ Every topic follows the same template so reviewing is predictable:
 
 ---
 
-## 🔧 Corrections to my original notes (read this first)
+## High-impact corrections and precise rules (read first)
 
 | # | What my note said | What is actually true |
 |---|---|---|
 | 1 | `let x = "5"; x = x * 2; x = x + 2; // "102"` | **Wrong.** `"5" * 2` → `10` (a *number*). Then `10 + 2` → `12`. The string concatenation example is `"5" + 2` → `"52"`. |
 | 2 | `null >= 0 // t` (unfinished) | It is `true`. `>=` converts `null` to `0`, but `==` does **not** (so `null == 0` is `false`). See [Type Coercion](#24-type-coercion-and-equality). |
-| 3 | "DOM is a subset of BOM" (and also "DOM is part of Window") | These two lines in my notes contradict each other. Correct model: **`window` is the global object**. `window.document` is the entry point to the **DOM** (a separate W3C/WHATWG standard). The **BOM** is an informal name for the other browser objects on `window` (`location`, `history`, `navigator`, `screen`…). DOM and BOM are *siblings* reached through `window`. |
+| 3 | "DOM is a subset of BOM" (and also "DOM is part of Window") | These two lines in my notes contradict each other. Correct model: **`window` is the global object**. `window.document` is the entry point to the **DOM** (a separate W3C/WHATWG standard). The **BOM** is an informal name for the other browser objects on `window` (`location`, `history`, `navigator`, `screen`…). DOM is a standardized interface reached through `window.document`; BOM is only an informal label for other browser APIs. |
 | 4 | "Chakra → Microsoft Edge" | Only **legacy** Edge (pre-2020) used Chakra. Modern Edge uses **V8** (it is Chromium-based). |
 | 5 | "All three (`var`, `let`, `const`) are hoisted, but only `var` is initialized" | Correct idea, incomplete: `var` is initialized to `undefined`; `let`/`const` are hoisted but stay **uninitialized** in the *Temporal Dead Zone (TDZ)*; **function declarations** are hoisted with their full body. |
 | 6 | "Objects → always use `for…in`" | `for…in` also walks **inherited** enumerable properties. Prefer `Object.keys/values/entries(obj)` with `for…of`. |
 | 7 | "Tauri" listed as a JS desktop framework | Tauri's backend is **Rust**; the UI is web tech (HTML/CSS/JS). Electron and NW.js are the "JS runtime inside" ones. |
 | 8 | "Stack stores primitives; heap stores objects" | A useful **mental model**, but a simplification. Real engines decide placement themselves (registers, stack, heap). What is *guaranteed* by the language: primitives are copied by value, objects are shared by reference. |
 | 9 | `prompt()` section contained the `window.open()` text | Those were two different topics. They are separated below. |
-| 10 | "Not suitable for heavy computation" | Too strong. JS (V8 JIT) is fast. It is *single-threaded*, so heavy CPU work blocks the page. Solutions: Web Workers, WebAssembly, native addons (Node). |
+| 10 | "Not suitable for heavy computation" | Too strong. JS (V8 JIT) is fast. A page's **main JS agent** runs one job at a time, so heavy synchronous CPU work blocks the main thread (unless offloaded to workers). Solutions: Web Workers, WebAssembly for some compute kernels, or native addons (Node). |
 | 11 | `window.open(URL, name, specs, replace)` | The 4th parameter (`replace`) is legacy and ignored by modern browsers. Modern `specs` also include `noopener`/`noreferrer`. |
 | 12 | "Mark-and-Sweep" as the GC algorithm | The *idea* is right (reachability). V8 actually uses a **generational** collector (Scavenger for young objects + Mark-Compact for old ones), with incremental/concurrent marking. |
 | 13 | Last line: "I should always check response for status code" | Very important and now explained: `fetch()` **does not reject on HTTP 404/500**. Check `response.ok`. See [fetch](#64-fetch-and-http-errors). |
+
+
+### The rules that matter most
+
+1. **The language vs its environment:** ECMAScript defines language features; HTML/DOM/Web APIs are provided by browsers; Node.js exposes its own APIs. Do not assume browser APIs behave identically in Node.
+2. **A value is not a memory location:** assignment of a primitive copies that value; assigning an object *reference* copies the reference. Stack/heap placement is an engine optimization, not an ECMAScript contract.
+3. **`this` is contextual:** in strict functions, a standalone call gives `undefined`; a detached method may throw when accessing `this.name`. Arrows capture lexical `this`.
+4. **String comparisons do not always become numbers:** `"11" < "2"` is `true` because two strings compare lexicographically. Converting to numbers must be explicit when that's what you want.
+5. **Classes do more than re-label prototypes:** methods use prototypes, but private fields, field initializers, `super`, strict mode, and other class semantics are additional features.
+6. **The browser event loop has multiple task sources:** a useful model is: run a task → drain microtasks → possibly render. Not every event handler is queued; `dispatchEvent()` invokes listeners synchronously.
+7. **`Promise.all` is not a magic thread pool:** the jobs supplied may already be running; the combinator waits and coordinates. CPU-intensive synchronous work still blocks the main thread.
+8. **Never assume every object can be cloned:** `structuredClone` handles many built-ins, but rejects functions and DOM nodes and does not preserve arbitrary class prototypes/private fields.
+9. **IndexedDB is transactional:** writes become durable only after the transaction completes; a cursor opened before the preceding writes have finished may not represent your intended query. Be careful when mixing async work into transactions.
+10. **Security:** do not interpolate untrusted HTML into `innerHTML`, avoid treating Web Storage as secure token storage, and check HTTP status and response format when using `fetch`.
+
+### Run examples locally
+
+```bash
+node --version              # modern Node.js recommended
+node example.mjs            # .mjs uses ES module mode
+```
+
+Browser-only snippets require an HTML document or browser developer tools. **A commented-out failing statement is a teaching example, not working application code.**
 
 ---
 
@@ -112,8 +136,9 @@ Every topic follows the same template so reviewing is predictable:
 **Part 12: Review Tools**
 - [12.1 Master Interview Q&A](#121-master-interview-qa)
 - [12.2 Output-Prediction Practice](#122-output-prediction-practice)
-- [12.3 Study Roadmap](#123-study-roadmap)
-- [12.4 One-Page Cheat Sheet](#124-one-page-cheat-sheet)
+- [12.3 Guided Deep Explanations](#123-guided-deep-explanations-trace-the-program-not-the-slogan)
+- [12.4 Study Roadmap](#124-study-roadmap)
+- [12.5 One-Page Cheat Sheet](#125-one-page-cheat-sheet)
 
 ---
 
@@ -145,7 +170,7 @@ What it gives us:
 Short version (details in later sections):
 1. An **engine** (e.g., V8) parses your source into an AST, produces bytecode, and runs it.
 2. Hot code is optimized into machine code by a **JIT compiler**.
-3. There is **one main thread**, a **call stack**, and an **event loop** that lets async work (timers, network) finish later without blocking.
+3. In a typical browser page there is a **main JavaScript thread** and an **event loop**; additional JavaScript agents can execute in **Web Workers**. Async I/O can complete without blocking the main JS thread.
 
 ### Where JS is used today 📝
 - 🌐 Web (front-end and back-end)
@@ -181,10 +206,10 @@ x = x + 2;   // 12   -> 🔧 NOT "102": x is now the number 10, so 10 + 2 = 12
 let y = "5";
 y = y + 2;   // "52" -> string + number = string concatenation
 ```
-*Why:* `+` has two jobs (add numbers **or** join strings). If either side is a string, it joins. `-`, `*`, `/` only do math, so they always convert to numbers.
+*Why:* `+` has two jobs (add numbers **or** join strings). If either side is a string, it joins. `-`, `*`, `/` do numeric operations (Number or BigInt); they do not concatenate strings.
 
 ### I. Quick revision
-- JS = interpreted + JIT, single-threaded, event-driven, dynamically typed.
+- JS = dynamically typed; modern engines usually use interpretation and JIT optimization. A JS agent runs jobs sequentially, with workers enabling additional agents.
 - Runs in browsers and Node.js. One language, front and back.
 - Weak spots: type coercion, single thread for CPU work.
 
@@ -376,7 +401,7 @@ Use `<script src defer>` in the head, or put the script at the end of body. Use 
 - Strict mode was added in ES5 to fix old "sloppy" behaviors without breaking old websites (so it's opt-in).
 
 ### C. Internally
-- `let`/`const` inside `{ }` live in a **block-level lexical environment** that is destroyed when the block ends (can be garbage collected).
+- `let`/`const` are tracked by a block lexical environment. This environment **may outlive the block** if captured by a closure; it is not necessarily destroyed immediately.
 - `var` ignores blocks (function-scoped).
 - Strict mode changes how the engine treats certain operations: assigning to undeclared variables throws, `this` in plain function calls is `undefined` (not `window`), duplicate parameter names are errors, writing to read-only properties throws.
 
@@ -390,9 +415,9 @@ Use `<script src defer>` in the head, or put the script at the end of body. Use 
   var c = 3;
 }
 console.log(c); // 3  (var ignores the block)
-console.log(a); // ❌ ReferenceError: a is not defined
+// console.log(a);      // ❌ ReferenceError if executed: block-scoped
 
-undeclared = 10; // ❌ ReferenceError in strict mode (silently creates a global in sloppy mode)
+// undeclared = 10;    // ❌ ReferenceError in strict mode
 ```
 
 ### F. When to use
@@ -434,12 +459,12 @@ Named containers for values.
 ```javascript
 const user = { name: "Ali" };
 user.name = "Omar";     // ✅ allowed: mutating the object
-user = {};              // ❌ TypeError: Assignment to constant variable
+// user = {};            // ❌ TypeError if executed: assignment to constant
 
 console.log(a);  // undefined (var hoisted)
 var a = 5;
 
-console.log(b);  // ❌ ReferenceError (TDZ)
+// console.log(b);     // ❌ ReferenceError if executed (TDZ)
 let b = 5;
 ```
 
@@ -458,7 +483,7 @@ for (var i = 0; i < 3; i++) setTimeout(() => console.log(i));
 for (let i = 0; i < 3; i++) setTimeout(() => console.log(i));
 // prints 0, 1, 2  (each iteration gets its own `i`)
 ```
-Also: `var` at top level pollutes `window`; `let` does not 📝.
+Also: In a **classic browser script**, top-level `var` creates a global-object property; in an **ES module** (and Node modules), a top-level `var` is module-scoped. `let` does not become a `window` property.
 
 **Naming rules** 📝: letters, digits, `_`, `$`; can't start with a digit; no reserved words; use `camelCase`; descriptive names (`userCount`, not `x`).
 
@@ -467,7 +492,7 @@ Also: `var` at top level pollutes `window`; `let` does not 📝.
 **Q: Does `const` make objects immutable?** No, only the binding. Use `Object.freeze()` for shallow immutability.
 
 ### I. Quick revision
-`const` by default → `let` if reassigning → never `var`. `const` ≠ immutable value.
+Use `const` by default, `let` for reassignment; `var` mainly matters when reading legacy code. `const` ≠ immutable value.
 
 ---
 
@@ -478,7 +503,7 @@ Also: `var` at top level pollutes `window`; `let` does not 📝.
 ### A. What is it?
 JavaScript has **7 primitive types** and **objects** (everything else).
 
-**Primitives (immutable, copied by value):**
+**Primitives (immutable values, copied by value):**
 
 | Type | Example | Notes |
 |---|---|---|
@@ -490,15 +515,15 @@ JavaScript has **7 primitive types** and **objects** (everything else).
 | `symbol` | `Symbol("id")` | Unique key, hidden from normal loops |
 | `bigint` | `123n` | Integers beyond `Number.MAX_SAFE_INTEGER` |
 
-**Reference types (objects, stored by reference):** `Object`, `Array`, `Function`, `Map`, `Set`, `Date`, `RegExp`, `Error`, `Promise`…
+**Objects (reference semantics):** `Object`, `Array`, `Function`, `Map`, `Set`, `Date`, `RegExp`, `Error`, `Promise`…
 
 ### B. Why does it matter?
 Copy-by-value vs copy-by-reference is behind a large share of JS bugs.
 
 ### C. Internally
-- Primitives: **assigning copies the value**. Updating creates a *new* value (strings are immutable).
-- Objects: variables hold a **reference** (like an address). Two variables can point to the **same object**.
-- 🔧 Primitives "have no properties" 📝, yet `"abc".length` works. The engine **temporarily wraps** the primitive in a `String` object to access methods, then discards it (auto-boxing).
+- Primitives: **assignment copies the value**. Variables can later hold another value; an existing string primitive cannot be mutated.
+- Objects: variables hold a **reference** (think of a link, not a publicly accessible memory address). Two variables can refer to the **same object**.
+- 🔧 Primitives "have no properties" 📝, yet `"abc".length` works. Property access on most primitives uses language-defined coercion and prototype lookup; implementations do **not have to allocate** a temporary wrapper object.
 
 ### D. Example
 ```javascript
@@ -516,7 +541,7 @@ console.log(p1.age);    // 30  (same object!)
 
 // Real copy:
 const p3 = { ...p1 };              // shallow copy
-const p4 = structuredClone(p1);    // deep copy
+const p4 = structuredClone(p1);    // deep copy of supported structured-clone types
 ```
 
 ### E. Step-by-step (`p2 = p1`)
@@ -537,7 +562,7 @@ console.log([1,2] == [1,2]);      // false (different references) ➕
 - `null` vs `undefined`: `undefined` = JS gave it (uninitialized variable, missing property); `null` = *you* say "nothing here".
 
 ### Reference types summary 📝
-All reference types live on the **heap**; variables point to them → **shared access**.
+Objects have **reference semantics**; a heap allocation is a useful mental model, but exact storage (heap, stack, registers, scalar replacement) is implementation-specific.
 - Arrays/objects/functions = containers of structured data.
 - `Map`/`Set` = special collections (any-type keys / unique values).
 - `RegExp` = patterns for validation. `Date` = time.
@@ -546,7 +571,7 @@ All reference types live on the **heap**; variables point to them → **shared a
 ### H. Interview questions
 **Q: Primitive types?** string, number, boolean, null, undefined, symbol, bigint.
 **Q: Why is `typeof null` "object"?** A bug from the first JS implementation, kept for backward compatibility.
-**Q: Shallow vs deep copy?** Shallow copies top-level only (nested objects are still shared). Deep copy duplicates everything (`structuredClone`).
+**Q: Shallow vs deep copy?** Shallow copies top-level only (nested objects are still shared). Deep copy duplicates supported nested data (`structuredClone`), **not functions, DOM nodes, or arbitrary class behavior**.
 
 ### I. Quick revision
 7 primitives = by value, immutable. Objects = by reference. `typeof null === "object"`. `NaN !== NaN`. Floating point is imprecise.
@@ -570,9 +595,9 @@ JS is dynamically typed, so operators must decide what to do with mixed types. C
 
 ### C. Internally: the main rules ➕
 - `+`: if **either** operand is a string (after converting objects to primitives) → **concatenation**. Otherwise → numeric addition.
-- `- * / %`: always convert to **number**.
+- `- * / %`: use numeric operations (Number or BigInt, depending on operands); mixing BigInt and Number generally throws.
 - `==`: if types differ, converts using the spec's algorithm. Special case: `null == undefined` is `true` and `null`/`undefined` equal **nothing else**.
-- Relational `< > <= >=`: convert to numbers (that's why `null >= 0` is `true`).
+- Relational `< > <= >=`: **when both converted primitive operands are strings**, compare lexicographically; otherwise numeric comparison is used (with BigInt/string special cases). Thus `null >= 0` is `true` but `"11" < "2"` is also `true`.
 - **Falsy values** (convert to `false`): `false`, `0`, `-0`, `0n`, `""`, `null`, `undefined`, `NaN`. **Everything else is truthy** (including `"0"`, `[]`, `{}`, `"false"`).
 
 ### D. Example
@@ -597,6 +622,7 @@ console.log([] + []);    // ""
 console.log(null == undefined);  // true
 console.log(null == 0);          // false
 console.log(null >= 0);          // true
+console.log("11" < "2");           // true (two strings → lexicographic comparison)
 console.log(NaN == NaN);         // false
 ```
 
@@ -624,7 +650,7 @@ parseInt("12px");          // 12  (parses until invalid char)
 **Q: What does `[] == ![]` return?** `true` (classic trick: `![]` is `false` → `0`; `[]` → `""` → `0`).
 
 ### I. Quick revision
-Use `===`. `+` concatenates if any side is a string. `- * /` always numeric. Know the 8 falsy values. `typeof null` is `"object"`.
+Use `===`. `+` concatenates if any side is a string. `- * /` perform numeric operations (may use `BigInt`); comparisons of two strings can be lexicographic. Know the 8 falsy values. `typeof null` is `"object"`.
 
 ---
 
@@ -751,7 +777,7 @@ async function bad() {
   });
   console.log("done"); // prints BEFORE the numbers
 }
-// forEach ignores the promises returned by the callback and never waits.
+// forEach ignores returned promises, so the outer function does not wait.
 
 // ✅ sequential:
 async function good() {
@@ -801,7 +827,7 @@ Each EC has two phases:
 **2. Execution phase**
 - Run line by line, assign values, call other functions (pushing new ECs).
 
-> Single-threaded = **one call stack** = one thing at a time.
+> One JS agent has an execution-context stack and runs JavaScript jobs to completion; workers can run concurrently.
 
 ### D. Example
 ```javascript
@@ -837,7 +863,7 @@ forever(); // ❌ RangeError: Maximum call stack size exceeded (stack overflow)
 **Q: What are the two phases of an execution context?** Creation (memory setup/hoisting) and execution.
 
 ### I. Quick revision
-EC = environment for running code. Stack = list of active ECs (LIFO). Creation phase makes hoisting happen. One stack = one thing at a time.
+EC = environment for running code. Stack = list of active ECs (LIFO). Creation phase makes hoisting happen. Each JS agent processes one job at a time; other agents/workers can run concurrently.
 
 ---
 
@@ -938,10 +964,10 @@ The effect of the **creation phase**: declarations are registered in memory *bef
 sayHi();                 // "Hi" ✅
 function sayHi() { console.log("Hi"); }
 
-sayBye();                // ❌ TypeError: sayBye is not a function (var = undefined)
+// sayBye();           // ❌ TypeError if executed (var is undefined)
 var sayBye = function () { console.log("Bye"); };
 
-sayHello();              // ❌ ReferenceError: Cannot access 'sayHello' before initialization
+// sayHello();         // ❌ ReferenceError if executed (TDZ)
 const sayHello = () => console.log("Hello");
 ```
 
@@ -970,8 +996,8 @@ In C/C++ you free memory manually (and forget → leaks, or free too early → c
 **Lifecycle:** 1) **Allocate** → 2) **Use** → 3) **Release** (GC).
 
 **Mental model 📝🔧** (simplified, engines optimize):
-- **Stack**: function calls, local primitives (fast, small, auto-cleaned when function returns).
-- **Heap**: objects, arrays, functions (big, dynamic, cleaned by GC).
+- **Stack (mental model)**: call frames and some temporaries; engines optimize how individual values are represented.
+- **Heap (mental model)**: many long-lived objects and collections; storage decisions remain implementation-specific.
 
 **How does GC decide something is garbage? → Reachability.**
 - Start from **roots** (global object, current call stack variables, etc.).
@@ -1030,7 +1056,7 @@ function f() { leaked = new Array(1e6); }  // no let/const → global forever
 
 ### H. Interview questions
 **Q: How does GC work in JS?** Reachability-based mark-and-sweep from roots.
-**Q: How can closures cause leaks?** A closure keeps its whole outer scope alive as long as the closure itself is reachable.
+**Q: How can closures cause leaks?** A closure retains the environments/values that its body may need; engines can optimize storage of unused variables.
 **Q: What is a WeakMap for?** Associate data with objects without preventing their garbage collection.
 
 ### I. Quick revision
@@ -1193,10 +1219,10 @@ Closure = function + remembered scope. Created on **every** function creation. K
 A function that is **defined and executed at the same moment**.
 
 ### B. Why does it exist?
-Before `let/const` and modules, the only way to create a private scope (and avoid polluting the global scope) was a function.
+Before `let/const` and modules, a common way to create a private scope (and avoid polluting the global scope) was a function; older syntax also included `catch` bindings and other scoped constructs.
 
 ### C. Internally
-The parentheses turn a function *declaration* into a function *expression* (declarations can't be called immediately), then `()` calls it. A new EC and scope are created and dropped.
+The parentheses turn a function *declaration* into a function *expression* (declarations can't be called immediately), then `()` calls it. A function execution context is created; captured variables **can remain alive** after it returns.
 
 ### D. Example
 ```javascript
@@ -1227,7 +1253,7 @@ One-time setup, isolated logic, async wrapper where top-level `await` isn't avai
 
 ### G. Common mistake
 ```javascript
-function () {}();      // ❌ SyntaxError: function declaration needs a name
+// function () {}();   // ❌ SyntaxError if uncommented
 (function () {})();    // ✅
 ```
 Missing semicolon before an IIFE on the previous line can merge two statements.
@@ -1242,7 +1268,7 @@ Missing semicolon before an IIFE on the previous line can merge two statements.
 📝 *Heading only ("controlling this"). Completed.*
 
 ### A. What is it?
-`this` is a special keyword whose value is decided **by how a function is called** (not where it's written). Exception: **arrow functions** have no own `this`; they use the `this` of the surrounding (lexical) scope.
+`this` is a special keyword whose value for a **regular function** is primarily decided **by how it is called**, not where it was written. The surrounding global/module context matters too. Exception: **arrow functions** have no own `this`; they use the `this` of the surrounding (lexical) scope.
 
 ### B. Why does it exist?
 It lets one function work with different objects (method reuse).
@@ -1265,8 +1291,10 @@ const user = {
 console.log(user.regular());    // "Ali"  (rule 3)
 
 const detached = user.regular;
-console.log(detached());        // undefined (rule 4; method lost its object)
-// (in strict mode it would throw: Cannot read properties of undefined)
+// The method is in a non-strict classic script here, so a standalone call
+// normally uses globalThis; it returns undefined only if globalThis.name is undefined.
+// In strict mode / ES modules, detached() THROWS when reading this.name.
+// console.log(detached());        // environment-dependent; avoid this call
 
 // Explicit binding
 function greet(greeting, punct) { return `${greeting}, ${this.name}${punct}`; }
@@ -1286,7 +1314,7 @@ console.log(bound("."));                     // "Hey, Sara."
 ### E. Step-by-step (`detached()`)
 1. `user.regular` is just a function value; we copy it to `detached`.
 2. We call `detached()`: no object before the dot → default binding.
-3. `this` = `globalThis`/`undefined` → `this.name` isn't `"Ali"`.
+3. In a strict function it is `undefined` (reading `this.name` throws). In sloppy mode it is usually `globalThis`, whose `.name` value is environment-dependent.
 
 ### G. Common mistakes
 ```javascript
@@ -1304,12 +1332,12 @@ button.addEventListener("click", obj.method.bind(obj));  // ✅
 - Arrow functions as **object methods** or **constructors** (they can't be `new`'d).
 
 ### H. Interview questions
-**Q: How is `this` determined?** By the call site: `new` > `call/apply/bind` > method call > default; arrows use lexical `this`.
+**Q: How is `this` determined?** Regular functions: `new`, explicit binding, method call, or default rules; bound functions and arrow functions have their own special behavior. This is a teaching order, not a universal priority algorithm.
 **Q: `call` vs `apply` vs `bind`?** See table.
 **Q: Why do arrow functions not work as methods when you need `this`?** They don't have their own `this`.
 
 ### I. Quick revision
-`this` = **how it's called**. Arrow = inherits `this`. `call/apply` run now; `bind` returns a new function.
+Regular-function `this` depends on invocation (and strictness); arrow functions inherit lexical `this`. `call/apply` run now; `bind` returns a new function.
 
 ---
 
@@ -1387,7 +1415,7 @@ You mostly use it indirectly through `class`. Direct use: `Object.create` for li
 **Q: What does `new` do?** Creates an empty object → links its prototype to `F.prototype` → runs `F` with `this` = that object → returns the object (unless `F` returns another object).
 
 ### I. Quick revision
-Lookup goes up the chain to `null`. Methods live on prototypes (shared, memory-efficient). `class` = syntax sugar over this. `Object.create` / `getPrototypeOf` are the key tools.
+Lookup goes up the chain to `null`. Methods live on prototypes (shared, memory-efficient). `class` builds on prototype inheritance and adds its own semantics. `Object.create` / `getPrototypeOf` are the key tools.
 
 ---
 
@@ -1396,7 +1424,7 @@ Lookup goes up the chain to `null`. Methods live on prototypes (shared, memory-e
 📝 *From my OOP notes ("limited encapsulation, flexible, trust-based OOP"), expanded.*
 
 ### A. What is it?
-`class` (ES6) is a cleaner syntax for constructor functions + prototypes. 📝 *It is syntactic sugar: under the hood it's still prototypes.* (Small differences: classes can't be called without `new`, are in the TDZ, and run in strict mode.)
+`class` is a modern way to define constructors, prototype methods, inheritance, fields, and private state. **Prototype inheritance remains underneath**, but classes are **not only syntax sugar**: private fields, field initializers, strict semantics, and other rules are distinct features.
 
 ### B. Why does it exist?
 Developers coming from Java/C#/Python wanted familiar, readable syntax for object blueprints and inheritance.
@@ -1420,7 +1448,7 @@ class Animal {
 }
 
 class Dog extends Animal {
-  constructor(name) { super(name); }    // must call super first
+  constructor(name) { super(name); }    // super initializes the parent first
   bark() { return `${this.name} barks`; }
   eat() { return super.eat() + " happily"; } // method override
 }
@@ -1428,7 +1456,7 @@ class Dog extends Animal {
 const d = new Dog("Rex");
 console.log(d.eat());            // "Rex eats (11) happily"
 console.log(d.energy);           // 11
-console.log(d.#energy);          // ❌ SyntaxError (private)
+// // console.log(d.#energy);      // ❌ SyntaxError if uncommented (private)
 console.log(typeof Animal);      // "function"  (classes ARE functions)
 console.log(Object.getPrototypeOf(Dog) === Animal); // true
 ```
@@ -1443,10 +1471,11 @@ Many similar objects with behavior (models, components, services). For simple da
 ### G. Common mistakes
 ```javascript
 class A { constructor() { console.log(this); } }
-A();                       // ❌ TypeError: Class constructor A cannot be invoked without 'new'
+// A();                // ❌ TypeError if executed
 
-class B extends A { constructor() { this.x = 1; super(); } }
-new B();                   // ❌ ReferenceError: must call super before accessing `this`
+// BAD (do not execute): derived constructor uses `this` before super():
+// class B extends A { constructor() { this.x = 1; super(); } }
+// new B();                // ❌ ReferenceError at runtime
 
 class C { greet() { return this; } }
 const g = new C().greet;
@@ -1455,12 +1484,12 @@ g();                       // undefined (lost `this`; class bodies are strict)
 Use arrow-function class fields (`greet = () => {…}`) or `.bind` if passing methods as callbacks.
 
 ### H. Interview questions
-**Q: Are JS classes real classes?** They're syntactic sugar over prototype-based inheritance.
+**Q: Are JS classes real classes?** They use prototype-based inheritance, with additional class semantics including truly private fields, initialization order, and strict-mode methods.
 **Q: How do you make private members?** `#field` syntax (true privacy), closures, or `_` naming convention (not enforced).
 **Q: Composition vs inheritance?** Prefer composition (build objects from small behaviors); deep inheritance trees are fragile.
 
 ### I. Quick revision
-`class` = prototypes underneath. `extends` + `super`. `#private` is real. Methods are shared on the prototype. Beware losing `this`.
+`class` uses prototype inheritance underneath, with extra class semantics. `extends` + `super`. `#private` is real. Methods are shared on the prototype. Beware losing `this`.
 
 ---
 
@@ -1471,15 +1500,15 @@ Use arrow-function class fields (`greet = () => {…}`) or `.bind` if passing me
 📝 *From my "How JavaScript Works Behind the Scenes" and "Event Loop" notes, restructured.*
 
 ### A. What is it?
-JS has **one thread** and **one call stack**, yet handles timers, network, and clicks without freezing. The **event loop** is the mechanism (provided by the host: browser or Node) that coordinates this.
+A **single JavaScript agent** has one execution thread and an execution-context stack. A browser page can also create **Web Workers** running JS on other threads. The event loop lets the main agent coordinate network, timers, and UI events without blocking while waiting. The **event loop** is the mechanism (provided by the host: browser or Node) that coordinates this.
 
 📝 **The pieces:**
 1. **Call Stack**: runs functions, LIFO.
 2. **Heap**: memory for objects.
-3. **Web APIs** (browser; in Node: libuv/C++ APIs): `setTimeout`, `fetch`, DOM events. 🔧 *Not part of the JS language*; they run **outside** the JS thread.
+3. **Host APIs** (browser; Node uses its own runtime/libuv): timers, networking, DOM events. 🔧 *Not ECMAScript language features.* Their waiting/work may be handled elsewhere, but **JavaScript listeners execute on the appropriate JS agent**.
 4. **Microtask Queue**: Promise callbacks (`.then/.catch/.finally`), `await` continuations, `queueMicrotask`, `MutationObserver`. **High priority**.
-5. **Task (Macrotask / Callback) Queue**: `setTimeout`, `setInterval`, DOM events, `MessageChannel`, I/O. **Lower priority**.
-6. **Event Loop**: moves callbacks into the stack when it's empty.
+5. **Tasks**: timers, queued UI events, `MessageChannel`, I/O readiness (host-specific). HTML has **multiple task sources**, so treating everything as one strict FIFO queue is an approximation. `dispatchEvent()` is synchronous.
+6. **Event loop**: selects runnable tasks, runs JS callbacks, performs microtask checkpoints, and gives the browser opportunities to render.
 
 ### B. Why does it exist?
 If JS **waited** for a 2-second network request, the whole page would freeze. Instead, JS **delegates** the waiting to the environment and continues; when the result is ready, a callback is queued.
@@ -1500,14 +1529,14 @@ If JS **waited** for a 2-second network request, the whole page would freeze. In
         Event Loop moves them   └───────────────────────────┘
 ```
 
-**The loop algorithm (one "tick"):**
-1. Run the current **synchronous code** until the call stack is empty.
-2. Run **ALL** microtasks (including new ones queued meanwhile) until the microtask queue is empty.
-3. (Browser) Possibly **render/paint**.
-4. Take **ONE** task from the task queue and run it.
-5. Go to step 2. **Forever.**
+**Browser mental model (simplified):**
+1. The event loop selects **a task** (for example, initial script execution or a timer callback).
+2. JavaScript runs it until it returns (run-to-completion).
+3. A **microtask checkpoint** drains promise reactions and queued microtasks, including those added by microtasks.
+4. The browser **may** update rendering.
+5. Another task may run. Tasks can originate from different task sources.
 
-> 🧠 *Sync code first → then all microtasks → then one macrotask → repeat.*
+> 🧠 *One task → drain microtasks → possible rendering → next task.* This is a model of a browser event loop, **not a universal rule for Node.js**.
 
 ### D. Example
 ```javascript
@@ -1571,13 +1600,13 @@ console.log("F");
 *Why:* `D` and `F` are sync. `await null` schedules `E` in microtasks right after `B` (queued earlier). `C` comes later (chained `.then` + extra promise tick). `A` is a macrotask → last.
 
 ### H. Interview questions
-**Q: Is JavaScript single-threaded? How does it do async?** Yes, single-threaded; async work is delegated to the host (Web APIs/OS), and callbacks are queued and run by the event loop when the stack is empty.
-**Q: Microtask vs macrotask?** Microtasks (Promises) run after the current script and **before** the next macrotask; all of them are drained each time.
+**Q: Is JavaScript single-threaded? How does it do async?** A JS agent executes one task at a time. Browsers also support workers. Async I/O can finish in the host environment; the event loop schedules JS callbacks.
+**Q: Microtask vs macrotask?** Promise reactions normally run at microtask checkpoints after current synchronous work and before the next browser task; Node has additional scheduling semantics.
 **Q: Why does a Promise callback run before `setTimeout(0)`?** Microtask queue has priority over the task queue.
 **Q: Does `async/await` create threads?** No, it's syntax over Promises; code after `await` runs as a microtask.
 
 ### I. Quick revision
-Stack empty → all microtasks → one macrotask → repeat. Promises = microtasks, timers/events = macrotasks. Web APIs are not the language. Never block the stack.
+Browser mental model: task → microtask checkpoint → optional rendering → next task. Node.js uses additional phases and queues. Promises = microtasks, timers/events = macrotasks. Web APIs are not the language. Never block the stack.
 
 ---
 
@@ -1615,11 +1644,12 @@ setTimeout((a, b) => console.log(a + b), 100, 2, 3); // 5
 
 ### G. Common mistakes
 - Forgetting `clearInterval` → leak + repeated work 📝.
-- `setInterval` with slow callbacks can **overlap/drift**; use a recursive `setTimeout` for "wait until finished, then wait again":
+- `setInterval` callbacks do not execute simultaneously **on the same JS thread**, but **async operations started by them can overlap**, and timer timing can drift. For polling, wait until one operation finishes before scheduling another:
 ```javascript
 async function poll() {
-  await doWork();
-  setTimeout(poll, 1000);
+  try { await doWork(); }
+  catch (err) { console.error("Polling failed", err); }
+  finally { setTimeout(poll, 1000); } // schedules after this attempt ends
 }
 ```
 - Passing `fn()` instead of `fn` (see 4.1).
@@ -1635,7 +1665,7 @@ Timers are host APIs. Delay = minimum. Always clear what you start.
 📝 *Heading + one line in my notes. Completed.*
 
 ### A. What is it?
-A **Promise** is an object representing a value that will exist **later**. States: **pending → fulfilled** (value) **or rejected** (error). Once settled, it never changes.
+A **Promise** represents the **eventual outcome** of an operation. It might already be fulfilled or rejected when you receive it. States: **pending → fulfilled** (value) **or rejected** (error). Once settled, it never changes.
 
 `async/await` is syntax that lets you write Promise code like synchronous code.
 
@@ -1705,12 +1735,12 @@ console.log(await Promise.any([bad, b]));          // "B"
 const x = await wait(300);
 const y = await wait(300);
 
-// ✅ Parallel: ~300 ms (both timers start immediately)
+// ✅ Concurrent timers: ~300 ms (both timers start immediately; no extra thread is required)
 const [x2, y2] = await Promise.all([wait(300), wait(300)]);
 ```
 
 ### F. When to use
-`all` → need every result. `allSettled` → want every outcome even with failures. `race` → timeouts (race a request against a timer). `any` → fastest successful mirror/source.
+`all` → need every result. `allSettled` → want every outcome even with failures. `race` → wait for the first outcome; **racing a timer does not cancel the losing operation**. Use `AbortController` to cancel supported requests. `any` → fastest successful mirror/source.
 
 ### G. Common mistakes
 ```javascript
@@ -1735,7 +1765,7 @@ p.then(v => { doSomething(v); }).then(r => console.log(r)); // undefined, forgot
 **Q: Are Promises asynchronous? What about the executor function?** The executor runs **synchronously**; `.then` callbacks run asynchronously (microtask).
 
 ### I. Quick revision
-Promise = future value. Callbacks → microtasks. `await` pauses only its function. Use `Promise.all` for parallel. Always handle errors.
+Promise = representation of an outcome (possibly already settled). Reactions → microtasks. `await` pauses only its function. Use `Promise.all` to coordinate concurrent operations; it does not parallelize CPU work. Always handle errors.
 
 ---
 
@@ -1747,7 +1777,7 @@ Promise = future value. Callbacks → microtasks. `await` pauses only its functi
 `fetch(url, options)` is the browser (and Node 18+) API for HTTP requests. It returns a **Promise<Response>**.
 
 ### B. Why this matters
-🔧 `fetch` **only rejects on network failure** (offline, DNS, CORS). A **404 or 500 is still a "successful" fetch**: the promise **resolves**. If you don't check, you try to parse an error page as data.
+🔧 `fetch` **does not reject solely because of HTTP 404/500**. It rejects for network/permission errors, aborts, or invalid request setup; HTTP error responses still resolve. A **404 or 500 is still a "successful" fetch**: the promise **resolves**. If you don't check, you try to parse an error page as data.
 
 ### D. Example
 ```javascript
@@ -1781,26 +1811,34 @@ await fetch("/api/users", {
 - Reading the body twice (`response.json()` then `.text()`): a body can be consumed **once** (use `response.clone()`).
 - No timeout: use `AbortController`:
 ```javascript
-const ctrl = new AbortController();
-setTimeout(() => ctrl.abort(), 5000);
-await fetch(url, { signal: ctrl.signal });
+async function fetchUsersWithTimeout() {
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 5000);
+  try {
+    const response = await fetch("/api/users", { signal: ctrl.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } finally {
+    clearTimeout(timeout); // do not leave a timer running
+  }
+}
 ```
 
 ### I. Quick revision
-`fetch` resolves on 404/500. **Always check `response.ok`**, then `await response.json()`, wrap in `try/catch`.
+`fetch` resolves for HTTP 404/500 responses (unless another error prevents the request). **Always check `response.ok`**, then `await response.json()`, wrap in `try/catch`.
 
 ---
 
 # PART 7: The Browser Environment
 
-> ⚠️ Everything in Parts 7–8 is **browser-provided**, not JavaScript itself. None of it exists in plain Node.js.
+> ⚠️ Everything in Parts 7–8 is **browser-provided**, not JavaScript itself. Some APIs also exist in modern Node.js (`fetch`, `URL`, `AbortController`, `navigator` subsets), but **DOM/window/cookie storage examples require a browser**.
 
 ## 7.1 Window, BOM, and DOM
 
 📝 *From my notes. 🔧 The hierarchy was contradictory; corrected below.*
 
 ### A. What is it?
-- 🪟 **`window`**: the **global object** of the browser (one per tab/frame). Global `var` variables and functions become its properties. `globalThis` is the portable name.
+- 🪟 **`window`**: the browser global object for a Window realm (frames can have separate Window globals). In **classic browser scripts**, top-level `var` and function declarations create global-object properties; ES modules do not. `globalThis` gives access to the global-this value in each environment (it need not be literally the same kind of object).
 - 🌳 **DOM** (Document Object Model): a **tree of objects** representing the HTML page, reached via `window.document`. Defined by a standard (WHATWG DOM).
 - 🌐 **BOM** (Browser Object Model): informal name for the browser-related objects on `window`: `location`, `history`, `navigator`, `screen`, timers, `localStorage`, etc. (No single official standard.)
 
@@ -1816,7 +1854,7 @@ window  (global object)
  ├── fetch, setTimeout, alert, console… ──► other Web APIs
  └── your global var/function declarations
 ```
-📝 *Window → BOM and Window → DOM.* They are **siblings**, both reached through `window`. (Calling DOM a "subset of BOM" is a common simplification, but they are separate specs.)
+📝 **DOM** is standardized. **BOM** is a loose, unofficial teaching label rather than a precisely specified tree; `window.document` exposes the DOM, and other Web APIs also hang off `window`. Avoid saying BOM and DOM are literal sibling object types.
 
 ### D. Example
 ```javascript
@@ -1829,10 +1867,16 @@ console.log(window.document === document);   // true
 
 // DOM basics ➕
 const el = document.querySelector("#title");
-el.textContent = "Hello";
-el.classList.add("active");
-const li = document.createElement("li");
-document.querySelector("ul").append(li);
+if (el) {
+  el.textContent = "Hello";
+  el.classList.add("active");
+}
+const list = document.querySelector("ul");
+if (list) {
+  const li = document.createElement("li");
+  li.textContent = "New item";
+  list.append(li);
+}
 ```
 
 ### G. Common mistakes
@@ -1841,10 +1885,10 @@ document.querySelector("ul").append(li);
 - Using `innerHTML` with user input → **XSS**; prefer `textContent`. ➕
 
 ### H. Interview question
-**Q: Difference between window, document, DOM, BOM?** `window` = global object; `document` = DOM entry point; DOM = page structure; BOM = browser features (location, history…).
+**Q: Difference between window, document, DOM, BOM?** `window` = browser global object; `document` exposes the DOM; BOM is an **informal** umbrella term for browser APIs.
 
 ### I. Quick revision
-`window` is the parent. `document` → DOM (content). `location/history/navigator/screen` → BOM (browser). `var` goes on `window`, `let/const` don't.
+`window.document` exposes the DOM; `location`/`history`/`navigator`/`screen` are other Web APIs often grouped informally as BOM. `var` goes on `window`, `let/const` don't.
 
 ---
 
@@ -1876,12 +1920,14 @@ window.open(URL, name, specs);
 | ~~replace~~ 🔧 | Legacy, ignored in modern browsers |
 
 ```javascript
-const popup = window.open("https://example.com", "_blank", "width=500,height=400,noopener");
+// Prefer an ordinary link with rel="noopener". If using this popup:
+window.open("https://example.com", "_blank", "noopener");
+// With noopener, do not rely on a controllable popup reference.
 // ⚠️ Browsers block popups not triggered by a user action (click) ➕
 ```
 
 ### Controlling a window 📝
-`popup.focus()`, `popup.blur()`, `popup.moveTo(x, y)`, `popup.resizeTo(w, h)`, `popup.close()`.
+If `window.open()` returns a usable `WindowProxy`, it may offer `focus`, `blur`, `moveTo`, `resizeTo`, `close`; many are restricted by browser policy and `noopener` intentionally prevents opener access.
 🔧 Modern browsers only allow `moveTo`/`resizeTo` on windows **you opened with `window.open`** and (often only for popups). They don't resize the user's normal tab.
 
 ### Size & position properties 📝
@@ -1950,7 +1996,7 @@ Mistake: using `location.href =` for login redirects when you don't want "Back" 
 ### `history`: this tab's session history 📝
 ```javascript
 history.back();  history.forward();  history.go(-2);
-console.log(history.length);   // pages visited in THIS tab
+console.log(history.length);   // session-history entries; not all URLs visited
 // ➕ SPA routing:
 history.pushState({ page: 2 }, "", "/page/2");   // change URL without reload
 window.addEventListener("popstate", (e) => console.log(e.state));
@@ -1967,8 +2013,8 @@ navigator.geolocation.getCurrentPosition(ok, err);  // needs permission
 ```
 - Read-only, environment info, access to clipboard/geolocation APIs 📝.
 - Sensitive features need **permissions** and a **secure context (HTTPS)**.
-- Browser only (not Node.js; newer Node has a minimal `navigator`).
-- It describes the environment; it does **not** navigate (that's `location`/`history`) 📝.
+- Mainly browser-focused. Modern Node.js may expose a limited `navigator` object; its properties are not identical to browsers.
+- It describes features and environment; navigation is generally via `location`/`history`. 📝
 
 ### `screen`: the user's **display**, not the window 📝
 ```javascript
@@ -1999,7 +2045,7 @@ An **event** is something that happens (click, key press, submit, load). An **ev
 
 ### C. Internally ➕
 - Events travel in 3 phases: **capture** (window → target) → **target** → **bubble** (target → window).
-- Listeners run as **tasks** (macrotasks) from the task queue.
+- Browser-generated user events are commonly delivered through event-loop tasks, but **`dispatchEvent()` invokes listeners synchronously**, and event propagation itself is not a separate asynchronous queue.
 - **Event delegation:** put one listener on a parent and use `event.target` (less memory, works for dynamically added children).
 
 ### D. Example
@@ -2018,7 +2064,8 @@ btn.addEventListener("click", () => {}, { once: true });     // auto-removes aft
 
 // Delegation
 document.querySelector("ul").addEventListener("click", (e) => {
-  if (e.target.matches("li")) console.log("Clicked", e.target.textContent);
+  const li = e.target instanceof Element ? e.target.closest("li") : null;
+  if (li && e.currentTarget.contains(li)) console.log("Clicked", li.textContent);
 });
 ```
 
@@ -2031,13 +2078,14 @@ document.querySelector("ul").addEventListener("click", (e) => {
 
 ### G. Common mistakes
 ```javascript
-btn.addEventListener("click", () => {...});
-btn.removeEventListener("click", () => {...});  // ❌ different function object → NOT removed
+btn.addEventListener("click", () => { console.log("clicked"); });
+btn.removeEventListener("click", () => { console.log("clicked"); });
+// ❌ different function object: the listener was NOT removed
 
-btn.addEventListener("click", hello());          // ❌ calls immediately
+// btn.addEventListener("click", hello());  // ❌ invokes hello immediately
 ```
 - Forgetting `event.preventDefault()` for forms/links.
-- Confusing `event.target` (what was clicked) and `event.currentTarget` (where the listener is).
+- Confusing `event.target` (original dispatch target) and `event.currentTarget` (object whose listener is running).
 
 ### I. Quick revision
 Use `addEventListener`. To remove, you need the **same function reference**. Know bubbling and delegation.
@@ -2056,8 +2104,8 @@ Use `addEventListener`. To remove, you need the **same function reference**. Kno
 | | `localStorage` | `sessionStorage` |
 |---|---|---|
 | Lifetime | **Persistent**: survives closing tab/window/browser 📝 | Cleared when the **tab/window closes** 📝 |
-| Shared across tabs | ✅ (same origin) | ❌ (per tab) |
-| Capacity | ~5 MB per origin | ~5 MB |
+| Shared across tabs | Usually yes for same-origin contexts (partitioning applies) | Per top-level browsing context; a new tab with an opener may start with a copy |
+| Capacity | Often about 5 MiB per origin; browsers impose quotas | Often about 5 MiB per origin; browsers impose quotas |
 | Sent to server | ❌ | ❌ |
 
 ### B. Why does it exist?
@@ -2092,7 +2140,7 @@ console.log(typeof localStorage.getItem("count"));  // "string" ← not number!
 - Quota errors / private mode → wrap in `try/catch`.
 
 ### I. Quick revision
-`local` = persistent, `session` = per-tab. Strings only, ~5 MB, synchronous, same-origin, not secure.
+`local` persists across ordinary browser sessions unless cleared; `session` is associated with a tab/page session. String values, synchronous API, quotas/policies vary; neither is a secure secrets vault.
 
 ---
 
@@ -2114,8 +2162,8 @@ Server sends `Set-Cookie: sid=abc; HttpOnly; Secure; SameSite=Lax; Max-Age=3600`
 | `Expires` / `Max-Age` | Lifetime (omitted = session cookie) |
 | `Path` / `Domain` | Where it's sent |
 | `Secure` | HTTPS only |
-| `HttpOnly` | **JS cannot read it** (protects from XSS theft) |
-| `SameSite` (`Strict`/`Lax`/`None`) | Limits cross-site sending (CSRF protection) |
+| `HttpOnly` | **`document.cookie` cannot read it** (reduces token theft via JS, but XSS can still act as the user) |
+| `SameSite` (`Strict`/`Lax`/`None`) | Restricts some cross-site sending (defense in depth against CSRF; not a complete solution). `SameSite=None` also requires `Secure` in modern browsers. |
 
 ### D. Example
 ```javascript
@@ -2127,7 +2175,7 @@ document.cookie = "theme=; max-age=0; path=/";
 ```
 
 ### F. When to use
-**Authentication session IDs** (set by the server as `HttpOnly; Secure`). For client-only data, prefer Web Storage/IndexedDB.
+**Authentication session IDs** (set by the server as `HttpOnly; Secure`). For nonsensitive client-only data, consider Web Storage/IndexedDB; **do not** put secrets in client-readable storage.
 
 ### G. Common mistakes
 - Putting large data in cookies (sent on **every** request → slow).
@@ -2137,9 +2185,9 @@ document.cookie = "theme=; max-age=0; path=/";
 ### Storage comparison ➕
 | | Cookies | localStorage | sessionStorage | IndexedDB |
 |---|---|---|---|---|
-| Size | ~4 KB | ~5 MB | ~5 MB | **hundreds of MB+** |
+| Size | ~4 KB per cookie (varies) | Usually ≈5 MiB | Usually ≈5 MiB | Browser/device-dependent quota |
 | Sent to server | **Yes, every request** | No | No | No |
-| Lifetime | Configurable | Forever | Tab | Forever |
+| Lifetime | Configurable | Until evicted/cleared | Page session, with restore caveats | Until evicted/cleared |
 | API | Sync (string) | Sync | Sync | **Async** |
 | Data | String | String | String | **Objects, files, blobs** |
 
@@ -2154,7 +2202,7 @@ A **NoSQL object database inside the browser** 📝:
 - ✔ Asynchronous (non-blocking)
 - ✔ Stores structured data (objects, arrays, Blobs/files), not just strings
 - ✔ Large capacity
-- ✔ Works **offline**
+- ✔ Can work **offline** once data has been stored
 - ✔ Indexed for fast queries, with transactions
 
 📝 *It is per browser + same origin + same profile:* data saved in Safari will **not** appear in Chrome, or on another domain.
@@ -2165,7 +2213,7 @@ A **NoSQL object database inside the browser** 📝:
 ### C. Internally ➕
 - Structure: **Database → Object Stores** (like tables) → records (key + value), plus **Indexes** for searching by other fields.
 - All operations happen inside **transactions** (`readonly`/`readwrite`) → atomic.
-- The native API is event/callback-based (`onsuccess`, `onerror`), which is awkward, hence libraries.
+- The native API is request-event-based (`onsuccess`, `onerror`), and transactions commit after pending requests finish. Request success ≠ transaction durability.
 
 ### 🌟 Cursors 📝
 A **cursor** scans records **one by one** (like a SQL cursor). You can filter, skip, stop early, and page through results.
@@ -2194,16 +2242,25 @@ req.onsuccess = (e) => {
   store.put({ id: 1, name: "Pen", price: 3 });
   store.put({ id: 2, name: "Book", price: 15 });
 
-  // Cursor with a range: price between 1 and 10
-  const range = IDBKeyRange.bound(1, 10);
-  store.index("price").openCursor(range).onsuccess = (ev) => {
-    const cursor = ev.target.result;
-    if (cursor) {
-      console.log(cursor.value);   // { id:1, name:"Pen", price:3 }
-      cursor.continue();           // move to next record
-    }
+  tx.oncomplete = () => {
+    // A *new readonly transaction* sees committed writes.
+    const readTx = db.transaction("products", "readonly");
+    const range = IDBKeyRange.bound(1, 10);
+    const cursorReq = readTx.objectStore("products")
+      .index("price").openCursor(range);
+
+    cursorReq.onsuccess = () => {
+      const cursor = cursorReq.result;
+      if (cursor) {
+        console.log(cursor.value); // { id:1, name:"Pen", price:3 }
+        cursor.continue();
+      }
+    };
+    readTx.onerror = () => console.error("Read failed", readTx.error);
   };
+  tx.onerror = () => console.error("Write failed", tx.error);
 };
+req.onerror = () => console.error("Database open failed", req.error);
 ```
 
 ### Libraries 📝
@@ -2216,7 +2273,11 @@ req.onsuccess = (e) => {
 // With idb (promises + await)
 import { openDB } from "idb";
 const db = await openDB("shopDB", 1, {
-  upgrade(db) { db.createObjectStore("products", { keyPath: "id" }); },
+  upgrade(db) {
+    if (!db.objectStoreNames.contains("products")) {
+      db.createObjectStore("products", { keyPath: "id" });
+    }
+  },
 });
 await db.put("products", { id: 1, name: "Pen" });
 console.log(await db.get("products", 1));
@@ -2271,13 +2332,13 @@ JSON.parse('{"a":1}', (k, v) => (typeof v === "number" ? v * 2 : v));  // revive
 
 ### G. Common mistakes
 ```javascript
-JSON.parse("{'a': 1}");       // ❌ SyntaxError (single quotes)
-JSON.parse("");               // ❌ SyntaxError → always try/catch for external input
-JSON.parse(undefined);        // ❌ SyntaxError ("undefined" is not valid JSON)
+// JSON.parse("{'a': 1}");  // ❌ SyntaxError if executed
+// JSON.parse("");           // ❌ SyntaxError if executed
+// JSON.parse(undefined);      // ❌ SyntaxError if executed
 
 // Circular reference
 const a = {}; a.self = a;
-JSON.stringify(a);            // ❌ TypeError: Converting circular structure
+// JSON.stringify(a);          // ❌ TypeError if executed: circular data
 
 // Poor deep clone
 JSON.parse(JSON.stringify(obj)); // loses Dates, undefined, functions, Map/Set → prefer structuredClone()
@@ -2296,7 +2357,7 @@ JSON is a **string format**. `stringify` (object → text), `parse` (text → ob
 A built-in object representing a single moment in time, stored internally as **milliseconds since 1 Jan 1970 UTC** (Unix epoch).
 
 ### B. 📝 The key danger
-`new Date(...)` **always creates an object**, even if the date is **invalid**. An "Invalid Date" leads to:
+`new Date(...)` creates a `Date` object (unless the constructor itself throws, e.g. for `Symbol`), even if the date is **invalid**. An invalid `Date` object can lead to:
 - 🔹 Incorrect calculations
 - 🔹 `NaN` results
 - 🔹 Silent logic bugs
@@ -2334,7 +2395,7 @@ const diffDays = (new Date("2025-03-20") - new Date("2025-03-15")) / 86_400_000;
 - Timezones: `"2025-03-04"` (date-only) is parsed as **UTC**, `"2025-03-04T00:00"` as **local**. Store/transmit in UTC (`toISOString()`).
 - Mutating dates (`setDate` changes the same object). Copy first: `new Date(d)`.
 - Comparing with `===`: compares references. Use `a.getTime() === b.getTime()`.
-- ➕ For complex logic use `Intl.DateTimeFormat`, `date-fns`/`Luxon`, or the upcoming `Temporal` API.
+- ➕ For complex logic use `Intl.DateTimeFormat`, `date-fns`/`Luxon`, or `Temporal` where supported (or a polyfill); browser support must be checked.
 
 ### I. Quick revision
 Date = ms since 1970 UTC. Always validate with `!isNaN(d.getTime())`. Months start at 0. Use ISO strings and UTC.
@@ -2360,7 +2421,7 @@ Your JS code
  + other C/C++ libs: OpenSSL, zlib, c-ares, llhttp…
 ```
 - 📝 Node is mostly written in **C++** (with C libs): V8 → C++, libuv → C, OpenSSL → C, zlib → C, c-ares → C.
-- Node has **its own event loop (libuv)**, whose phases (timers, poll, check…) differ slightly from the browser's. `process.nextTick` runs before promise microtasks ➕.
+- Node has **its own event loop (libuv)**, whose phases (timers, poll, check…) differ slightly from the browser's. `process.nextTick` uses its own queue: in **CommonJS** top-level code it typically runs before Promise microtasks; in **ES modules** top-level Promise microtasks may run first. Prefer `queueMicrotask` for portable microtask behavior. ➕
 - Node adds `fs`, `http`, `path`, `process`, `Buffer`, but has **no** `window`/`document`.
 
 ### F. When to use
@@ -2373,10 +2434,10 @@ REST/GraphQL APIs, real-time apps (WebSockets), microservices, CLI tools, build 
 📝 *From my notes (cleaned and verified: it was accurate).*
 
 ### A. What is it?
-A **native addon** is a library written in **C or C++**, **compiled** into a binary (`.node` file), and loaded from JavaScript.
+A **native addon** is compiled native code (commonly C/C++) built as a `.node` shared library and loaded by Node.js. Other native interop options exist.
 
 ### Can Node.js run C/C++ directly?
-**No.** Node executes JavaScript (or TypeScript compiled to JS). C/C++ must first be **compiled to a native addon**.
+Node does not interpret C/C++ source. It can interact with **compiled** native code via addons, subprocesses, or other integration mechanisms. A `.node` addon is one option.
 
 ### Architecture
 ```text
@@ -2550,15 +2611,18 @@ Split code into files with private scope and explicit sharing. Replaces globals 
 
 ### D. Example
 ```javascript
-// math.js
+// math.js (its OWN file)
 export const PI = 3.14;
 export function add(a, b) { return a + b; }
 export default function multiply(a, b) { return a * b; }
+```
 
-// app.js
+```javascript
+// app.js (a DIFFERENT file)
 import multiply, { add, PI as pi } from "./math.js";
 import * as math from "./math.js";
-const lazy = await import("./heavy.js");       // dynamic import (code splitting)
+// import("./heavy.js") is for loading another module on demand.
+console.log(multiply(add(2, 3), pi));
 ```
 ```html
 <script type="module" src="app.js"></script>
@@ -2623,8 +2687,8 @@ Uses: lazy data, custom iterables, and it's the idea behind how `async/await` wa
 |---|---|---|
 | `Map` | key → value | **Any type** as key, keeps insertion order, has `.size` |
 | `Set` | unique values | Auto-removes duplicates |
-| `WeakMap` | object-keyed data | Keys **must be objects**, held **weakly** (GC-friendly), not iterable |
-| `WeakSet` | set of objects | Same weak idea |
+| `WeakMap` | object-keyed data | Keys are objects or **non-registered symbols**, held **weakly**; not iterable |
+| `WeakSet` | weak collection | Objects and non-registered symbols can be members; not iterable |
 
 ```javascript
 const m = new Map([["a", 1]]);
@@ -2655,13 +2719,13 @@ Declarations are registered during the creation phase before execution. Function
 A function that remembers the lexical environment it was created in, even after the outer function returns.
 
 **4. How does `this` work?**
-Determined by the call site: `new` > `call/apply/bind` > `obj.method()` > default (`undefined`/global). Arrow functions use lexical `this`.
+Regular function invocation determines `this`; strict standalone calls use `undefined`, sloppy ones usually use the global object. Arrows inherit lexical `this`.
 
 **5. Explain the event loop.**
-Run sync code → drain all microtasks (Promises) → run one macrotask (timers/events) → repeat.
+Browser mental model: execute a task → drain microtasks → optionally render → choose the next task. Node.js has additional queues/phases.
 
-**6. Microtask vs macrotask?**
-Microtasks: Promise callbacks, `queueMicrotask`. Macrotasks: `setTimeout`, events, I/O. Microtasks run first and fully drain between macrotasks.
+**6. Microtask vs task?**
+Promise reactions and `queueMicrotask` run at microtask checkpoints. Timer callbacks and queued user events run as browser tasks. Manually dispatched DOM events run synchronously.
 
 **7. `==` vs `===`?**
 `==` coerces types, `===` doesn't. Use `===`.
@@ -2673,19 +2737,19 @@ Primitives are copied by value and immutable; objects are shared by reference.
 When a property isn't found on an object, JS looks up its `[[Prototype]]` chain until `null`.
 
 **10. Are classes real in JS?**
-Syntactic sugar over prototypes (with extras like `#private` and strictness).
+Yes. Classes build on prototypes while defining extra semantics such as `#private` fields, initializers, and strict mode.
 
 **11. `call` vs `apply` vs `bind`?**
 `call(this, a, b)` and `apply(this, [a, b])` invoke now; `bind` returns a new function with fixed `this`.
 
 **12. What is a Promise? What does `async/await` do?**
-A Promise is a future value (pending/fulfilled/rejected). `async/await` is syntax over Promises; `await` pauses the function, not the thread.
+A Promise models an eventual outcome (it may already be settled). `await` suspends an async function, not the execution thread.
 
 **13. `Promise.all` vs `allSettled` vs `race` vs `any`?**
 Fail-fast all · all outcomes · first settled · first fulfilled.
 
 **14. Why doesn't `fetch` reject on 404?**
-It only rejects on network-level failures; check `response.ok`.
+HTTP 404/500 responses resolve; transport errors and aborts reject. Check `response.ok`.
 
 **15. How does garbage collection work?**
 Reachability from roots; unreachable objects are freed (mark-and-sweep, generational in V8).
@@ -2715,7 +2779,7 @@ One listener on a parent handles events from many children via bubbling and `eve
 Break work into chunks, use Web Workers, `requestIdleCallback`, or WebAssembly; offload heavy tasks to a server.
 
 **24. What is the difference between `null` and `undefined`?**
-`undefined` = not assigned; `null` = intentionally empty.
+`undefined` is a primitive commonly used for absent/uninitialized values; `null` is usually used to mark an intentionally absent value. These are conventions, not an enforced ownership rule.
 
 **25. What does `new` do?**
 Creates an object, links its prototype to `Constructor.prototype`, runs the constructor with `this` bound to it, and returns it.
@@ -2756,8 +2820,10 @@ console.log([] + [], [] + {}, [] == ![]);
 // Q7
 const o = { x: 1, getX() { return this.x; } };
 const g = o.getX;
-console.log(o.getX(), g());
-// → 1 undefined   (sloppy mode; throws in strict mode)
+console.log(o.getX()); // 1
+// console.log(g());    // strict mode: TypeError (lost `this`); sloppy mode: global object
+// → 1 then typically undefined in a sloppy global script; strict mode THROWS.
+// Do not rely on the standalone call result across environments.
 
 // Q8
 console.log("start");
@@ -2777,7 +2843,128 @@ console.log(null ?? "d", 0 ?? "d", 0 || "d", "" ?? "d");
 
 ---
 
-## 12.3 Study Roadmap
+
+## 12.3 Guided deep explanations: trace the program, not the slogan
+
+These four walkthroughs teach a way to *derive* the behavior, rather than memorizing an interview answer.
+
+### Walkthrough 1 — copying a value vs sharing an object
+
+**Problem:** Updating one variable unexpectedly changes another.
+
+```javascript
+const studentA = { profile: { language: "English" } };
+const studentB = { ...studentA }; // copies ONLY the outer object
+studentB.profile.language = "French";
+console.log(studentA.profile.language); // "French"
+```
+
+**Why?** `studentA` and `studentB` are different *outer objects*, but their `profile` properties contain references to the **same inner object**:
+
+```text
+studentA ─► object A ─► profile ─┐
+                                  ├──► { language: "French" }
+studentB ─► object B ─► profile ─┘
+```
+
+**Fix for plain serializable-like data:**
+
+```javascript
+const independent = structuredClone(studentA);
+independent.profile.language = "Spanish";
+console.log(studentA.profile.language); // "French", unchanged
+```
+
+`structuredClone` is **not a clone-everything function**. It supports many built-ins but not DOM nodes, functions, or arbitrary class instance behavior. Avoid relying on exact stack/heap placement; **value/reference semantics** are what your code can observe.
+
+### Walkthrough 2 — closures and lifetime
+
+**Problem:** How can a counter remember its state without a global variable?
+
+```javascript
+function makeCounter() {
+  let count = 0;
+  return () => ++count;
+}
+const first = makeCounter();
+const second = makeCounter();
+console.log(first());  // 1
+console.log(first());  // 2
+console.log(second()); // 1
+```
+
+1. Calling `makeCounter()` creates a new binding `count`.
+2. The returned arrow refers to that binding, so the binding is kept available.
+3. Every call to `first()` increments the *same* binding captured by `first`.
+4. Calling `makeCounter()` again creates a **separate** binding for `second`.
+
+**Important:** the outer function has returned, but its necessary captured state remains reachable. The engine is free to optimize how that state is stored.
+
+### Walkthrough 3 — promises and the browser event loop
+
+```javascript
+console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve().then(() => console.log("C"));
+console.log("D");
+// A, D, C, B   (normal browser script execution)
+```
+
+- `A` prints immediately.
+- `setTimeout` registers a **future task**; it does not run the callback now.
+- `.then(...)` registers a **promise reaction** to be executed as a microtask.
+- `D` prints before the current script ends.
+- The microtask checkpoint prints `C` before the next timer task prints `B`.
+
+**What `await` actually does:** it suspends execution of **that async function**, not the main JS thread. Other tasks can proceed while it awaits asynchronous work. It does not make CPU-heavy synchronous code run in parallel.
+
+### Walkthrough 4 — `this` is controlled by invocation
+
+```javascript
+"use strict";
+const person = {
+  name: "Sara",
+  getName() { return this.name; },
+};
+console.log(person.getName());             // "Sara"
+console.log(person.getName.call({name:"Ali"})); // "Ali"
+const detached = person.getName;
+// detached();   // TypeError: this is undefined in strict mode
+const fixed = person.getName.bind(person);
+console.log(fixed());                      // "Sara"
+```
+
+1. `person.getName()` supplies `person` as `this`.
+2. `.call(other)` calls the *same function* with `other` as `this`.
+3. `detached()` loses its receiver; under strict mode `this` is `undefined`.
+4. `.bind(person)` creates a callable with a fixed `this`.
+
+Arrow functions are different: they **do not create their own `this`**, so they are useful for callbacks defined *inside* object methods, but unsuitable when an object-literal method must use a dynamic receiver.
+
+### Practice: decide what happens *before* running
+
+```javascript
+// 1. Should print 2, not 1: why?
+let x = 1;
+const get = () => x;
+x = 2;
+console.log(get());
+
+// 2. Should print 20: why?
+const box = { n: 10 };
+const alias = box;
+alias.n = 20;
+console.log(box.n);
+
+// 3. Promise callback before timer: why?
+setTimeout(() => console.log("timer"), 0);
+Promise.resolve().then(() => console.log("promise"));
+```
+
+---
+
+## 12.4 Study roadmap
+
 
 📝 *From the "I should search about this" section of my notes, turned into an ordered plan. Search terms are kept.*
 
@@ -2806,26 +2993,26 @@ console.log(null ?? "d", 0 ?? "d", 0 || "d", "" ?? "d");
 
 ---
 
-## 12.4 One-Page Cheat Sheet
+## 12.5 One-Page Cheat Sheet
 
 ```text
 SCRIPT LOADING   defer (head, after parse, ordered) · async (ASAP, unordered) · module (deferred)
 VARIABLES        const > let >> var     | TDZ for let/const | const ≠ immutable value
-TYPES            7 primitives (copy by value) · objects (by reference) · typeof null = "object"
-EQUALITY         always ===   | + concatenates if any string | - * / → numbers | NaN !== NaN
+TYPES            7 primitive categories (value semantics) · objects (reference semantics) · typeof null = "object"
+EQUALITY         prefer === | + concatenates with string coercion | two strings compare lexically
 FALSY            false 0 -0 0n "" null undefined NaN
 DEFAULTS         ?? only null/undefined | || any falsy
 LOOPS            of → values · in → keys (+inherited) · Object.entries for objects · no await in forEach
 CONTEXT          creation phase (hoist) → execution phase | Call stack = LIFO of contexts
 SCOPE            lexical (decided where WRITTEN) · chain: inner → outer → global → ReferenceError
-CLOSURE          function + remembered lexical env | keeps variables alive | var in loops = trap
-THIS             new > call/apply/bind > obj.method() > default | arrow = lexical this
-PROTOTYPE        lookup up the chain to null | class = sugar | new F() → obj.__proto__ = F.prototype
-EVENT LOOP       sync → ALL microtasks (promises) → ONE macrotask (timers/events) → repeat
+CLOSURE          function + captured lexical bindings | lifetime follows reachability
+THIS             regular: call-site/strictness matter | arrow = lexical this | bind fixes receiver
+PROTOTYPE        lookup up chain to null | classes use prototypes + extra semantics
+EVENT LOOP       browser: task → microtasks → optional rendering → next task (Node differs)
 PROMISES         pending → fulfilled/rejected | all(fail-fast) allSettled race any
 FETCH            doesn't reject on 404/500 → check response.ok → await response.json()
 GC               reachability (mark & sweep) | leaks: timers, listeners, globals, closures, caches
-STORAGE          cookie ~4KB (sent to server) · local ~5MB persistent · session per tab · IndexedDB big+async
+STORAGE          cookie ≈4KB each (conditional sending) · Web Storage quota · IndexedDB async
 JSON             string format; drops undefined/functions; try/catch parse
 DATE             ms since 1970 UTC · months 0-based · validate with !isNaN(d.getTime())
 NODE             V8 + libuv (C++/C) · CPU-heavy blocks loop · native addons via Node-API
@@ -2841,3 +3028,24 @@ NODE             V8 + libuv (C++/C) · CPU-heavy blocks loop · native addons vi
 4. Anything marked 🔧 in the corrections table at the top is worth re-reading, since those are the ideas most easily remembered wrong.
 
 *Happy learning! 🚀*
+
+
+---
+
+## Verified references and scope notes
+
+These sources support the rules above. Links are included so you can check platform-specific behavior or future browser changes:
+
+- [MDN — JavaScript execution model](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model) — JavaScript jobs, agents, run-to-completion.
+- [MDN — `this`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this) — strict/default/method/arrow binding.
+- [MDN — microtasks](https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide) — task/microtask checkpoints.
+- [MDN — `dispatchEvent()`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent) — synchronous manual dispatch.
+- [MDN — structured cloning](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) — supported and unsupported types.
+- [MDN — script element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script) — `async`, `defer`, module loading.
+- [MDN — storage quotas](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria) — quota and eviction caveats.
+- [MDN — IndexedDB transactions](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Basic_Terminology) — request and transaction lifetimes.
+- [MDN — WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) — object/non-registered-symbol keys.
+- [Node.js — `process.nextTick()` vs `queueMicrotask()`](https://nodejs.org/api/process.html#when-to-use-queuemicrotask-vs-processnexttick) — CommonJS/ESM ordering caveat.
+- [MDN — Temporal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) — check current compatibility before relying on the built-in.
+
+**Environment note:** Code marked as browser-specific must be run in a browser. Other examples assume modern JavaScript and may need splitting into independent files because lessons reuse top-level names. Output is asserted only where it follows from JavaScript semantics, not from mutable globals, time-zone settings, or cross-environment scheduling.
